@@ -1,4 +1,4 @@
-# home.py - Page d'accueil Logistics Intelligence 
+# home.py - Page d'accueil Logistics Intelligence ✅ DARK & LIGHT MODES ✅ CORRIGÉ
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -20,60 +20,118 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Détection du thème Streamlit
-theme = st.get_option("theme.base") if st.get_option("theme.base") else "light"
+# Fonction pour détecter le thème
+def get_theme():
+    try:
+        return st.get_option("theme.base") or "light"
+    except:
+        return "light"
+
+# Détection thème
+theme = get_theme()
 is_dark = theme == "dark"
 
-# CSS adaptatif DARK/LIGHT
-st.markdown(f"""
+# CSS adaptatif DARK/LIGHT ✅ F-STRING CORRIGÉ
+css_dark = """
+:root {
+    --bg-primary: #0f0f23, #1a1a2e, #16213e;
+    --bg-card: rgba(102,126,234,0.2), rgba(118,75,162,0.2);
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --border-color: rgba(255,255,255,0.2);
+    --shadow-color: rgba(102,126,234,0.3);
+    --accent-color: #667eea;
+}
+body { 
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); 
+    color: var(--text-primary); 
+}
+.main-header {
+    background: linear-gradient(135deg, rgba(10,10,16,0.95), rgba(26,26,46,0.95));
+    box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+}
+.tool-card:hover { box-shadow: 0 35px 70px rgba(102,126,234,0.5); }
+.soon-card {
+    background: linear-gradient(145deg, rgba(34,197,94,0.25), rgba(16,185,129,0.25));
+    border-color: rgba(34,197,94,0.5);
+    box-shadow: 0 25px 50px rgba(34,197,94,0.4);
+}
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 25px 50px rgba(34,197,94,0.4); }
+    50% { box-shadow: 0 25px 50px rgba(34,197,94,0.7); }
+}
+.stButton > button {
+    background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));
+    border-color: rgba(102,126,234,0.5);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+}
+.stButton > button:hover {
+    background: linear-gradient(135deg, rgba(102,126,234,0.4), rgba(118,75,162,0.4));
+    box-shadow: 0 20px 40px rgba(102,126,234,0.6);
+}
+"""
+
+css_light = """
+:root {
+    --bg-primary: #f8fafc, #e2e8f0, #cbd5e1;
+    --bg-card: rgba(102,126,234,0.1), rgba(118,75,162,0.1);
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border-color: rgba(0,0,0,0.1);
+    --shadow-color: rgba(102,126,234,0.2);
+    --accent-color: #667eea;
+}
+body { 
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%); 
+    color: var(--text-primary); 
+}
+.main-header {
+    background: linear-gradient(135deg, rgba(248,250,252,0.95), rgba(226,232,240,0.95));
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+.tool-card:hover { box-shadow: 0 35px 70px rgba(102,126,234,0.3); }
+.soon-card {
+    background: linear-gradient(145deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15));
+    border-color: rgba(34,197,94,0.3);
+    box-shadow: 0 25px 50px rgba(34,197,94,0.2);
+}
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 25px 50px rgba(34,197,94,0.2); }
+    50% { box-shadow: 0 25px 50px rgba(34,197,94,0.4); }
+}
+.stButton > button {
+    background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+    border-color: rgba(102,126,234,0.3);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+.stButton > button:hover {
+    background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));
+    box-shadow: 0 20px 40px rgba(102,126,234,0.4);
+}
+"""
+
+# CSS commun + thème spécifique
+st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Variables couleurs adaptatives */
-:root {{
-    --bg-primary: {{"#0f0f23, #1a1a2e, #16213e" if is_dark else "#f8fafc, #e2e8f0, #cbd5e1"}};
-    --bg-card: {{"rgba(102,126,234,0.2), rgba(118,75,162,0.2)" if is_dark else "rgba(102,126,234,0.1), rgba(118,75,162,0.1)"}};
-    --text-primary: {{"#e2e8f0" if is_dark else "#1e293b"}}; 
-    --text-secondary: {{"#94a3b8" if is_dark else "#64748b"}};
-    --border-color: {{"rgba(255,255,255,0.2)" if is_dark else "rgba(0,0,0,0.1)"}};
-    --shadow-color: {{"rgba(102,126,234,0.3)" if is_dark else "rgba(102,126,234,0.2)"}};
-    --accent-color: #667eea;
-}}
-
-* {{ font-family: 'Inter', sans-serif; }}
-
-body {{ 
-    background: linear-gradient(135deg, {{"#0f0f23 0%, #1a1a2e 50%, #16213e 100%" if is_dark else "#f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%"}}); 
-    color: var(--text-primary); 
-    margin: 0 !important;
-    padding: 0 !important;
-}}
-
-h1, h2, h3 {{ 
+* { font-family: 'Inter', sans-serif; }
+h1, h2, h3 { 
     color: var(--text-primary) !important; 
     font-family: 'Orbitron', monospace !important; 
-    text-shadow: {{"0 2px 10px rgba(102,126,234,0.5)" if is_dark else "0 2px 4px rgba(0,0,0,0.1)"}}; 
-}}
-
-.main-header {{
-    padding: 2.5rem; 
-    background: linear-gradient(135deg, {{"rgba(10,10,16,0.95), rgba(26,26,46,0.95)" if is_dark else "rgba(248,250,252,0.95), rgba(226,232,240,0.95)"}});
-    backdrop-filter: blur(25px); 
-    border-radius: 24px; 
-    border-left: 8px solid var(--accent-color); 
-    box-shadow: {{"0 30px 60px rgba(0,0,0,0.8)" if is_dark else "0 20px 40px rgba(0,0,0,0.1)"}}; 
+    text-shadow: var(--text-shadow, '0 2px 10px rgba(102,126,234,0.5)');
+}
+.main-header {
+    padding: 2.5rem; backdrop-filter: blur(25px); 
+    border-radius: 24px; border-left: 8px solid var(--accent-color); 
     margin-bottom: 2rem;
-}}
-
-.tool-card {{ 
-    background: linear-gradient(145deg, var(--bg-card));
-    backdrop-filter: blur(20px); 
+}
+.tool-card { 
     color: var(--text-primary) !important; 
     padding: 2.5rem 1.5rem !important; 
     border-radius: 24px !important; 
     text-align: center !important; 
     border: 2px solid var(--border-color) !important; 
-    box-shadow: 0 25px 50px var(--shadow-color) !important; 
     margin: 1rem 0.5rem !important;
     height: 240px;
     display: flex;
@@ -82,64 +140,42 @@ h1, h2, h3 {{
     transition: all 0.3s ease !important;
     position: relative;
     overflow: hidden;
-}}
-.tool-card:hover {{
+}
+.tool-card:hover {
     transform: translateY(-10px) scale(1.02) !important;
-    box-shadow: 0 35px 70px {{"rgba(102,126,234,0.5)" if is_dark else "rgba(102,126,234,0.3)"}} !important;
     border-color: var(--accent-color) !important;
-}}
-
-.soon-card {{
-    background: linear-gradient(145deg, {{"rgba(34,197,94,0.25), rgba(16,185,129,0.25)" if is_dark else "rgba(34,197,94,0.15), rgba(16,185,129,0.15)"}});
-    backdrop-filter: blur(20px); 
-    color: var(--text-primary) !important; 
+}
+.soon-card {
     padding: 2.5rem 1.5rem !important; 
     border-radius: 24px !important; 
     text-align: center !important; 
-    border: 2px solid {{"rgba(34,197,94,0.5)" if is_dark else "rgba(34,197,94,0.3)"}} !important; 
-    box-shadow: 0 25px 50px {{"rgba(34,197,94,0.4)" if is_dark else "rgba(34,197,94,0.2)"}} !important; 
     margin: 1rem 0.5rem !important;
     height: 240px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     animation: pulse 2s infinite;
-}}
-
-@keyframes pulse {{
-    0%, 100% {{ box-shadow: 0 25px 50px {{"rgba(34,197,94,0.4)" if is_dark else "rgba(34,197,94,0.2)"}}; }}
-    50% {{ box-shadow: 0 25px 50px {{"rgba(34,197,94,0.7)" if is_dark else "rgba(34,197,94,0.4)"}}; }}
-}}
-
-.tool-icon {{ 
-    font-size: 4rem !important; 
-    margin-bottom: 1.2rem;
-    display: block;
-}}
-.tool-title {{ 
-    font-size: 1.3rem !important; 
-    font-weight: 700 !important;
+}
+.tool-icon { font-size: 4rem !important; margin-bottom: 1.2rem; display: block; }
+.tool-title { 
+    font-size: 1.3rem !important; font-weight: 700 !important;
     font-family: 'Orbitron', monospace !important;
     margin-bottom: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-}}
-.tool-desc {{ 
+}
+.tool-desc { 
     font-size: 0.92rem !important; 
     opacity: 0.9 !important; 
     line-height: 1.5;
-}}
-.soon-text {{
+}
+.soon-text {
     font-size: 1.1rem !important;
     color: #22c55e !important;
     font-weight: 600 !important;
     margin-top: 0.5rem;
-}}
-
-.stButton > button {{
-    background: linear-gradient(135deg, {{"rgba(102,126,234,0.2), rgba(118,75,162,0.2)" if is_dark else "rgba(102,126,234,0.1), rgba(118,75,162,0.1)"}}) !important;
-    backdrop-filter: blur(20px) !important; 
-    border: 2px solid {{"rgba(102,126,234,0.5)" if is_dark else "rgba(102,126,234,0.3)"}} !important;
+}
+.stButton > button {
     border-radius: 16px !important; 
     padding: 0.8rem 2rem !important;
     font-family: 'Orbitron', monospace !important;
@@ -147,22 +183,24 @@ h1, h2, h3 {{
     font-size: 0.85rem !important;
     color: var(--text-primary) !important;
     text-transform: uppercase !important; 
-    box-shadow: 0 12px 30px {{"rgba(0,0,0,0.3)" if is_dark else "rgba(0,0,0,0.15)"}} !important;
     letter-spacing: 1px !important;
     height: 48px !important;
     width: 100% !important;
     margin-top: 1rem !important;
-}}
-.stButton > button:hover {{
+    backdrop-filter: blur(20px) !important;
+}
+.stButton > button:hover {
     transform: translateY(-4px) scale(1.05) !important; 
-    background: linear-gradient(135deg, {{"rgba(102,126,234,0.4), rgba(118,75,162,0.4)" if is_dark else "rgba(102,126,234,0.2), rgba(118,75,162,0.2)"}}) !important;
-    box-shadow: 0 20px 40px {{"rgba(102,126,234,0.6)" if is_dark else "rgba(102,126,234,0.4)"}} !important; 
     border-color: var(--accent-color) !important;
-}}
-</style>
-""", unsafe_allow_html=True)
+}
+""" + (css_dark if is_dark else css_light), unsafe_allow_html=True)
 
-# Header adaptatif DARK/LIGHT
+# Header adaptatif
+header_bg = "#0a0a10, #1a1a2e" if is_dark else "#f8fafc, #e2e8f0"
+header_overlay = "rgba(10,10,16,0.5) 0%, rgba(26,26,46,0.7) 100%" if is_dark else "rgba(248,250,252,0.8) 0%, rgba(226,232,240,0.9) 100%"
+header_shadow = "0 30px 60px rgba(0,0,0,0.8)" if is_dark else "0 20px 40px rgba(0,0,0,0.1)"
+bg_opacity = "0.2" if is_dark else "0.1"
+
 header_code = f"""
 <!DOCTYPE html>
 <html>
@@ -172,17 +210,17 @@ header_code = f"""
     body {{ margin: 0; padding: 0; background-color: transparent; font-family: 'Inter', sans-serif; overflow: hidden; }}
     .main-header {{
         position: relative; padding: 35px; 
-        background: linear-gradient(135deg, {{"#0a0a10, #1a1a2e" if is_dark else "#f8fafc, #e2e8f0"}}); 
+        background: linear-gradient(135deg, {header_bg}); 
         border-radius: 24px; border-left: 12px solid #667eea; overflow: hidden; 
-        box-shadow: {{"0 30px 60px rgba(0,0,0,0.8)" if is_dark else "0 20px 40px rgba(0,0,0,0.1)"}}; 
+        box-shadow: {header_shadow}; 
         min-height: 160px; display: flex; flex-direction: column; justify-content: center;
     }}
     #bg-carousel {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background-size: cover; background-position: center; opacity: {0.2 if is_dark else 0.1}; 
+        background-size: cover; background-position: center; opacity: {bg_opacity}; 
         transition: background-image 2s ease-in-out; z-index: 0;
     }}
     .overlay {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient({{"rgba(10,10,16,0.5) 0%, rgba(26,26,46,0.7) 100%" if is_dark else "rgba(248,250,252,0.8) 0%, rgba(226,232,240,0.9) 100%"}});
+        background: linear-gradient({header_overlay});
         z-index: 1; pointer-events: none;
     }}
     .content {{ position: relative; z-index: 2; text-align: center; }}
@@ -215,10 +253,10 @@ header_code = f"""
         ];
         let index = 0;
         const bgDiv = document.getElementById('bg-carousel');
-        function changeBackground() {
+        function changeBackground() {{
             bgDiv.style.backgroundImage = `url('${{images[index]}}')`;
             index = (index + 1) % images.length;
-        }
+        }}
         changeBackground();
         setInterval(changeBackground, 4000);
     </script>
@@ -227,12 +265,10 @@ header_code = f"""
 """
 components.html(header_code, height=200)
 
-# TITRE
+# CONTENU (identique aux versions précédentes)
 st.markdown("### 🚀 **Plateforme d'Optimisation Logistique**")
 
-# GRILLE 3x2
 col1, col2, col3 = st.columns(3)
-
 with col1:
     st.markdown('''
     <div class="tool-card">
@@ -266,7 +302,6 @@ with col3:
     if st.button("🚀 LANCER", key="btn_app3", use_container_width=True):
         st.switch_page("pages/app3.py")
 
-# LIGNE 2
 col4, col5, col6 = st.columns(3)
 st.markdown("---")
 
@@ -302,6 +337,5 @@ with col6:
     </div>
     ''', unsafe_allow_html=True)
 
-# Footer
 st.markdown("---")
 st.markdown("*Optimisation logistique avancée - Suite complète d'outils*")
