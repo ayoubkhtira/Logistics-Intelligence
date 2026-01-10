@@ -265,8 +265,6 @@ header_code = f"""
 """
 components.html(header_code, height=200)
 
-# CONTENU (identique aux versions précédentes)
-st.markdown("### 🚀 **Plateforme d'Optimisation Logistique**")
 
 col1, col2, col3 = st.columns(3)
 with col1:
