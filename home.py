@@ -2,15 +2,70 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-# CSS pour cacher sidebar
+#CSS sidebar par CE CODE RENFORCÉ :
+
 st.markdown("""
 <style>
-    section[data-testid="stSidebar"] { display: none !important; width: 0 !important; visibility: hidden !important; }
-    .stSidebarCollapsedControl { display: none !important; }
-    [data-testid="collapsedControl"] { display: none !important; }
-    .css-1d391kg, .css-mkog8s { display: none !important; }
+    /* ✅ SIDEBAR INVISIBLE À 100% - VERSION ULTIME */
+    
+    /* 1. Sidebar entière */
+    section[data-testid="stSidebar"] { 
+        display: none !important; 
+        width: 0 !important; 
+        height: 0 !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* 2. Bouton expander (keyboard_double_arrow) */
+    .stSidebarCollapsedControl { 
+        display: none !important; 
+        visibility: hidden !important;
+        opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+    
+    /* 3. Contrôle collapse */
+    [data-testid="collapsedControl"] { 
+        display: none !important; 
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+    
+    /* 4. Classes Streamlit spécifiques */
+    .css-1d391kg, .css-mkog8s { 
+        display: none !important; 
+    }
+    
+    /* 5. Icône SVG arrow (CRUCIAL) */
+    svg[data-testid="styled-svg-icon"],
+    div[role="img"][aria-label*="arrow"] {
+        display: none !important;
+    }
+    
+    /* 6. TOUS contenus sidebar */
+    section[data-testid="stSidebar"] *,
+    section[data-testid="stSidebar"]::before,
+    section[data-testid="stSidebar"]::after {
+        display: none !important;
+    }
+    
+    /* 7. Espace réservé sidebar */
+    .css-1d391kg + div,
+    .css-mkog8s + div {
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+    
+    /* 8. Navigation hamburger (bonus) */
+    [data-testid="stHeader"] button[kind="header"] {
+        display: none !important;
+    }
 </style>
 """, unsafe_allow_html=True)
+
 
 # Configuration
 st.set_page_config(
