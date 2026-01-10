@@ -1,11 +1,11 @@
-# home.py - Page d'accueil Logistics Intelligence 
+# home.py - Page d'accueil Logistics Intelligence ✅ SIDEBAR CACHÉE ✅ ERREUR CORRIGÉE
 import streamlit as st
 import streamlit.components.v1 as components
 
-# CSS pour cacher COMPLETEMENT la sidebar AVANT config
+# CSS pour cacher COMPLETEMENT la sidebar ✅ AVANT set_page_config
 st.markdown("""
 <style>
-    /* ✅ Cacher sidebar complètement */
+    /* Cacher sidebar complètement */
     section[data-testid="stSidebar"] { 
         display: none !important; 
         width: 0 !important; 
@@ -15,19 +15,17 @@ st.markdown("""
     .stSidebarCollapsedControl { display: none !important; }
     /* Cacher toute trace de sidebar */
     [data-testid="collapsedControl"] { display: none !important; }
-    /* Empêcher hover/resize */
     .css-1d391kg { display: none !important; }
     .css-mkog8s { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# Configuration
+# Configuration ✅ CORRIGÉE (suppression page_config invalide)
 st.set_page_config(
     page_title="Logistics Intelligence", 
     page_icon="🚚", 
     layout="wide",
-    initial_sidebar_state="collapsed",
-    page_config={"disableCustomTheme": False}
+    initial_sidebar_state="collapsed"
 )
 
 # CSS Styling HOMOGÈNE 
