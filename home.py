@@ -337,5 +337,3 @@ with col6:
     </div>
     ''', unsafe_allow_html=True)
 
-st.markdown("---")
-st.markdown("*Optimisation logistique avancée - Suite complète d'outils*")
