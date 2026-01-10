@@ -1,4 +1,4 @@
-# home.py - RESPONSIVE MOBILE + PC ✅ DARK/LIGHT ✅ SIDEBAR INVISIBLE ✅ STRUCTURÉ
+# home.py - CORRIGÉ ✅ RESPONSIVE MOBILE + PC ✅ DARK/LIGHT ✅ SIDEBAR INVISIBLE
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -171,38 +171,65 @@ def render_header():
     components.html(header_html, height=180)
 
 # =============================================================================
-# OUTILS - CONFIGURATION
+# OUTILS - CONFIGURATION ✅ CORRIGÉE
 # =============================================================================
 TOOLS = [
     {
-        "icon": "📦", "title": "PALLET OPTIMIZER", "desc": "Optimisation parfaite de vos palettes",
-        "page": "pages/app1.py", "key": "btn_app1"
+        "icon": "📦", 
+        "title": "PALLET OPTIMIZER", 
+        "desc": "Optimisation parfaite de vos palettes",
+        "page": "pages/app1.py", 
+        "key": "btn_app1",
+        "is_soon": False
     },
     {
-        "icon": "🚛", "title": "CONTAINER OPTIMIZER", "desc": "Maximisez l'espace conteneurs",
-        "page": "pages/app2.py", "key": "btn_app2"
+        "icon": "🚛", 
+        "title": "CONTAINER OPTIMIZER", 
+        "desc": "Maximisez l'espace conteneurs",
+        "page": "pages/app2.py", 
+        "key": "btn_app2",
+        "is_soon": False
     },
     {
-        "icon": "📊", "title": "VOGEL SYSTEM", "desc": "Algorithme approvisionnement",
-        "page": "pages/app3.py", "key": "btn_app3"
+        "icon": "📊", 
+        "title": "VOGEL SYSTEM", 
+        "desc": "Algorithme approvisionnement",
+        "page": "pages/app3.py", 
+        "key": "btn_app3",
+        "is_soon": False
     },
     {
-        "icon": "⚙️", "title": "MRP/CBN SOLUTION", "desc": "Gestion besoins matériaux",
-        "page": "pages/app4.py", "key": "btn_app4"
+        "icon": "⚙️", 
+        "title": "MRP/CBN SOLUTION", 
+        "desc": "Gestion besoins matériaux",
+        "page": "pages/app4.py", 
+        "key": "btn_app4",
+        "is_soon": False
     },
     {
-        "icon": "💰", "title": "CALCULATOR TRANSPORT", "desc": "Coûts transport précis",
-        "page": "pages/app5.py", "key": "btn_app5"
+        "icon": "💰", 
+        "title": "CALCULATOR TRANSPORT", 
+        "desc": "Coûts transport précis",
+        "page": "pages/app5.py", 
+        "key": "btn_app5",
+        "is_soon": False
     },
     {
-        "icon": "📈", "title": "SIX SIGMA", "desc": "Réduction défauts & optimisation",
-        "page": None, "key": None, "soon": True
+        "icon": "📈", 
+        "title": "SIX SIGMA", 
+        "desc": "Réduction défauts & optimisation",
+        "page": None, 
+        "key": None,
+        "is_soon": True
     }
 ]
 
 def render_tool_card(tool, col_idx):
-    """Rend une carte outil"""
-    if tool["soon"]:
+    """Rend une carte outil - ✅ KEYERROR CORRIGÉ"""
+    # ✅ Vérification explicite de la clé "is_soon"
+    is_soon = tool.get("is_soon", False)
+    
+    if is_soon:
         html = f'''
         <div class="soon-card">
             <span class="tool-icon">{tool["icon"]}</span>
@@ -222,8 +249,10 @@ def render_tool_card(tool, col_idx):
     
     components.html(html, height=280)
     
-    if not tool["soon"] and st.button("🚀 LANCER", key=tool["key"], use_container_width=True):
-        st.switch_page(tool["page"])
+    # ✅ Vérification explicite avant accès aux clés page/key
+    if not is_soon and tool.get("page") and tool.get("key"):
+        if st.button("🚀 LANCER", key=tool["key"], use_container_width=True):
+            st.switch_page(tool["page"])
 
 # =============================================================================
 # RENDU PRINCIPAL
@@ -232,7 +261,7 @@ def main():
     # Header
     render_header()
     
-    # Grille 1
+    # Grille 1 - 3 premiers outils
     cols1 = st.columns([1, 1, 1])
     for i, col in enumerate(cols1):
         with col:
@@ -240,7 +269,7 @@ def main():
     
     st.markdown("---")
     
-    # Grille 2
+    # Grille 2 - 3 derniers outils
     cols2 = st.columns([1, 1, 1])
     for i, col in enumerate(cols2):
         with col:
