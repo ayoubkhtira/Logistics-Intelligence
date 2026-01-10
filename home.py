@@ -174,8 +174,8 @@ header_code = """
         <div id="bg-carousel"></div>
         <div class="overlay"></div>
         <div class="content">
-            <h1>Logistics<span style="font-weight: 700;">Intelligence</span></h1>
-            <div class="status">Supply Chain Excellence</div>
+            <h1>Logistics<span style="font-weight: 700;"> Intelligence</span></h1>
+            <div class="status">Au service de l’optimisation des systèmes industriels et logistiques</div>
         </div>
     </div>
     <script>
