@@ -185,4 +185,4 @@ with col5:
 with col6:
     st.markdown('<div class="soon-card"><span class="tool-icon">📈</span><div class="tool-title">SIX SIGMA</div><div class="tool-desc">Réduction défauts & optimisation</div><div class="soon-text">🔥 COMING SOON</div></div>', unsafe_allow_html=True)
 
-st.markdown("---*Optimisation logistique avancée - Suite complète d'outils*")
+
