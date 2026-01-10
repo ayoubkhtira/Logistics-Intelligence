@@ -2,65 +2,51 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-#CSS sidebar par CE CODE RENFORCÉ :
+# MODIFIER UNIQUEMENT home.py - SOLUTION GLOBALE
+
+# REMPLACEZ votre CSS sidebar (ligne 5) par CE CSS GLOBAL :
 
 st.markdown("""
 <style>
-    /* ✅ SIDEBAR INVISIBLE À 100% - VERSION ULTIME */
+    /* ✅ SIDEBAR INVISIBLE DANS TOUTES LES PAGES */
     
-    /* 1. Sidebar entière */
-    section[data-testid="stSidebar"] { 
-        display: none !important; 
-        width: 0 !important; 
+    /* 1. TOUTES les sidebars */
+    section[data-testid="stSidebar"],
+    section[data-testid="stSidebar"] * {
+        display: none !important;
+        width: 0 !important;
         height: 0 !important;
         visibility: hidden !important;
         opacity: 0 !important;
         overflow: hidden !important;
     }
     
-    /* 2. Bouton expander (keyboard_double_arrow) */
-    .stSidebarCollapsedControl { 
-        display: none !important; 
-        visibility: hidden !important;
-        opacity: 0 !important;
-        width: 0 !important;
-        height: 0 !important;
-    }
-    
-    /* 3. Contrôle collapse */
-    [data-testid="collapsedControl"] { 
-        display: none !important; 
+    /* 2. Boutons expander TOUS */
+    .stSidebarCollapsedControl,
+    [data-testid="collapsedControl"],
+    svg[data-testid="styled-svg-icon"] {
+        display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
     }
     
-    /* 4. Classes Streamlit spécifiques */
-    .css-1d391kg, .css-mkog8s { 
-        display: none !important; 
-    }
-    
-    /* 5. Icône SVG arrow (CRUCIAL) */
-    svg[data-testid="styled-svg-icon"],
-    div[role="img"][aria-label*="arrow"] {
+    /* 3. Classes Streamlit globales */
+    .css-1d391kg,
+    .css-mkog8s,
+    div.element-container [data-testid="stHorizontalBlock"] {
         display: none !important;
     }
     
-    /* 6. TOUS contenus sidebar */
-    section[data-testid="stSidebar"] *,
-    section[data-testid="stSidebar"]::before,
-    section[data-testid="stSidebar"]::after {
+    /* 4. CSS avec portée globale (*** IMPORTANT ***) */
+    html body *,
+    html body section[data-testid="stSidebar"],
+    iframe body section[data-testid="stSidebar"] {
         display: none !important;
     }
     
-    /* 7. Espace réservé sidebar */
-    .css-1d391kg + div,
-    .css-mkog8s + div {
-        margin-left: 0 !important;
-        padding-left: 0 !important;
-    }
-    
-    /* 8. Navigation hamburger (bonus) */
-    [data-testid="stHeader"] button[kind="header"] {
+    /* 5. Force override pour pages */
+    :root section[data-testid="stSidebar"],
+    body section[data-testid="stSidebar"] {
         display: none !important;
     }
 </style>
