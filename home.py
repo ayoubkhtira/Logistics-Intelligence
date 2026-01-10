@@ -1,26 +1,18 @@
-# home.py - Page d'accueil Logistics Intelligence ✅ SIDEBAR CACHÉE ✅ ERREUR CORRIGÉE
+# home.py - Page d'accueil Logistics Intelligence 
 import streamlit as st
 import streamlit.components.v1 as components
 
-# CSS pour cacher COMPLETEMENT la sidebar ✅ AVANT set_page_config
+# CSS pour cacher sidebar
 st.markdown("""
 <style>
-    /* Cacher sidebar complètement */
-    section[data-testid="stSidebar"] { 
-        display: none !important; 
-        width: 0 !important; 
-        visibility: hidden !important;
-    }
-    /* Cacher expander sidebar */
+    section[data-testid="stSidebar"] { display: none !important; width: 0 !important; visibility: hidden !important; }
     .stSidebarCollapsedControl { display: none !important; }
-    /* Cacher toute trace de sidebar */
     [data-testid="collapsedControl"] { display: none !important; }
-    .css-1d391kg { display: none !important; }
-    .css-mkog8s { display: none !important; }
+    .css-1d391kg, .css-mkog8s { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# Configuration ✅ CORRIGÉE (suppression page_config invalide)
+# Configuration
 st.set_page_config(
     page_title="Logistics Intelligence", 
     page_icon="🚚", 
@@ -28,44 +20,60 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CSS Styling HOMOGÈNE 
-st.markdown("""
+# Détection du thème Streamlit
+theme = st.get_option("theme.base") if st.get_option("theme.base") else "light"
+is_dark = theme == "dark"
+
+# CSS adaptatif DARK/LIGHT
+st.markdown(f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-* { font-family: 'Inter', sans-serif; }
-body { 
-    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); 
-    color: #e2e8f0; 
+/* Variables couleurs adaptatives */
+:root {{
+    --bg-primary: {{"#0f0f23, #1a1a2e, #16213e" if is_dark else "#f8fafc, #e2e8f0, #cbd5e1"}};
+    --bg-card: {{"rgba(102,126,234,0.2), rgba(118,75,162,0.2)" if is_dark else "rgba(102,126,234,0.1), rgba(118,75,162,0.1)"}};
+    --text-primary: {{"#e2e8f0" if is_dark else "#1e293b"}}; 
+    --text-secondary: {{"#94a3b8" if is_dark else "#64748b"}};
+    --border-color: {{"rgba(255,255,255,0.2)" if is_dark else "rgba(0,0,0,0.1)"}};
+    --shadow-color: {{"rgba(102,126,234,0.3)" if is_dark else "rgba(102,126,234,0.2)"}};
+    --accent-color: #667eea;
+}}
+
+* {{ font-family: 'Inter', sans-serif; }}
+
+body {{ 
+    background: linear-gradient(135deg, {{"#0f0f23 0%, #1a1a2e 50%, #16213e 100%" if is_dark else "#f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%"}}); 
+    color: var(--text-primary); 
     margin: 0 !important;
     padding: 0 !important;
-}
+}}
 
-h1, h2, h3 { 
-    color: #f8fafc !important; 
+h1, h2, h3 {{ 
+    color: var(--text-primary) !important; 
     font-family: 'Orbitron', monospace !important; 
-    text-shadow: 0 2px 10px rgba(102,126,234,0.5); 
-}
+    text-shadow: {{"0 2px 10px rgba(102,126,234,0.5)" if is_dark else "0 2px 4px rgba(0,0,0,0.1)"}}; 
+}}
 
-.main-header {
+.main-header {{
     padding: 2.5rem; 
-    background: linear-gradient(135deg, rgba(10,10,16,0.95), rgba(26,26,46,0.95));
+    background: linear-gradient(135deg, {{"rgba(10,10,16,0.95), rgba(26,26,46,0.95)" if is_dark else "rgba(248,250,252,0.95), rgba(226,232,240,0.95)"}});
     backdrop-filter: blur(25px); 
     border-radius: 24px; 
-    border-left: 8px solid #667eea; 
-    box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
+    border-left: 8px solid var(--accent-color); 
+    box-shadow: {{"0 30px 60px rgba(0,0,0,0.8)" if is_dark else "0 20px 40px rgba(0,0,0,0.1)"}}; 
     margin-bottom: 2rem;
-}
+}}
 
-.tool-card { 
-    background: linear-gradient(145deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2));
+.tool-card {{ 
+    background: linear-gradient(145deg, var(--bg-card));
     backdrop-filter: blur(20px); 
-    color: white !important; 
+    color: var(--text-primary) !important; 
     padding: 2.5rem 1.5rem !important; 
     border-radius: 24px !important; 
     text-align: center !important; 
-    border: 2px solid rgba(255,255,255,0.2) !important; 
-    box-shadow: 0 25px 50px rgba(102,126,234,0.3) !important; 
+    border: 2px solid var(--border-color) !important; 
+    box-shadow: 0 25px 50px var(--shadow-color) !important; 
     margin: 1rem 0.5rem !important;
     height: 240px;
     display: flex;
@@ -74,119 +82,120 @@ h1, h2, h3 {
     transition: all 0.3s ease !important;
     position: relative;
     overflow: hidden;
-}
-.tool-card:hover {
+}}
+.tool-card:hover {{
     transform: translateY(-10px) scale(1.02) !important;
-    box-shadow: 0 35px 70px rgba(102,126,234,0.5) !important;
-    border-color: #667eea !important;
-}
+    box-shadow: 0 35px 70px {{"rgba(102,126,234,0.5)" if is_dark else "rgba(102,126,234,0.3)"}} !important;
+    border-color: var(--accent-color) !important;
+}}
 
-.soon-card {
-    background: linear-gradient(145deg, rgba(34,197,94,0.25), rgba(16,185,129,0.25));
+.soon-card {{
+    background: linear-gradient(145deg, {{"rgba(34,197,94,0.25), rgba(16,185,129,0.25)" if is_dark else "rgba(34,197,94,0.15), rgba(16,185,129,0.15)"}});
     backdrop-filter: blur(20px); 
-    color: #e2e8f0 !important; 
+    color: var(--text-primary) !important; 
     padding: 2.5rem 1.5rem !important; 
     border-radius: 24px !important; 
     text-align: center !important; 
-    border: 2px solid rgba(34,197,94,0.5) !important; 
-    box-shadow: 0 25px 50px rgba(34,197,94,0.4) !important; 
+    border: 2px solid {{"rgba(34,197,94,0.5)" if is_dark else "rgba(34,197,94,0.3)"}} !important; 
+    box-shadow: 0 25px 50px {{"rgba(34,197,94,0.4)" if is_dark else "rgba(34,197,94,0.2)"}} !important; 
     margin: 1rem 0.5rem !important;
     height: 240px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     animation: pulse 2s infinite;
-}
+}}
 
-@keyframes pulse {
-    0%, 100% { box-shadow: 0 25px 50px rgba(34,197,94,0.4); }
-    50% { box-shadow: 0 25px 50px rgba(34,197,94,0.7); }
-}
+@keyframes pulse {{
+    0%, 100% {{ box-shadow: 0 25px 50px {{"rgba(34,197,94,0.4)" if is_dark else "rgba(34,197,94,0.2)"}}; }}
+    50% {{ box-shadow: 0 25px 50px {{"rgba(34,197,94,0.7)" if is_dark else "rgba(34,197,94,0.4)"}}; }}
+}}
 
-.tool-icon { 
+.tool-icon {{ 
     font-size: 4rem !important; 
     margin-bottom: 1.2rem;
     display: block;
-}
-.tool-title { 
+}}
+.tool-title {{ 
     font-size: 1.3rem !important; 
     font-weight: 700 !important;
     font-family: 'Orbitron', monospace !important;
     margin-bottom: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-}
-.tool-desc { 
+}}
+.tool-desc {{ 
     font-size: 0.92rem !important; 
     opacity: 0.9 !important; 
     line-height: 1.5;
-}
-.soon-text {
+}}
+.soon-text {{
     font-size: 1.1rem !important;
     color: #22c55e !important;
     font-weight: 600 !important;
     margin-top: 0.5rem;
-}
+}}
 
-.stButton > button {
-    background: linear-gradient(135deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2)) !important;
+.stButton > button {{
+    background: linear-gradient(135deg, {{"rgba(102,126,234,0.2), rgba(118,75,162,0.2)" if is_dark else "rgba(102,126,234,0.1), rgba(118,75,162,0.1)"}}) !important;
     backdrop-filter: blur(20px) !important; 
-    border: 2px solid rgba(102,126,234,0.5) !important;
+    border: 2px solid {{"rgba(102,126,234,0.5)" if is_dark else "rgba(102,126,234,0.3)"}} !important;
     border-radius: 16px !important; 
     padding: 0.8rem 2rem !important;
     font-family: 'Orbitron', monospace !important;
     font-weight: 600 !important; 
     font-size: 0.85rem !important;
-    color: #e2e8f0 !important;
+    color: var(--text-primary) !important;
     text-transform: uppercase !important; 
-    box-shadow: 0 12px 30px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 12px 30px {{"rgba(0,0,0,0.3)" if is_dark else "rgba(0,0,0,0.15)"}} !important;
     letter-spacing: 1px !important;
     height: 48px !important;
     width: 100% !important;
     margin-top: 1rem !important;
-}
-.stButton > button:hover {
+}}
+.stButton > button:hover {{
     transform: translateY(-4px) scale(1.05) !important; 
-    background: linear-gradient(135deg, rgba(102,126,234,0.4), rgba(118,75,162,0.4)) !important;
-    box-shadow: 0 20px 40px rgba(102,126,234,0.6) !important; 
-    border-color: #667eea !important;
-}
+    background: linear-gradient(135deg, {{"rgba(102,126,234,0.4), rgba(118,75,162,0.4)" if is_dark else "rgba(102,126,234,0.2), rgba(118,75,162,0.2)"}}) !important;
+    box-shadow: 0 20px 40px {{"rgba(102,126,234,0.6)" if is_dark else "rgba(102,126,234,0.4)"}} !important; 
+    border-color: var(--accent-color) !important;
+}}
 </style>
 """, unsafe_allow_html=True)
 
-# Header
-header_code = """
+# Header adaptatif DARK/LIGHT
+header_code = f"""
 <!DOCTYPE html>
 <html>
 <head>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
 <style>
-    body { margin: 0; padding: 0; background-color: transparent; font-family: 'Inter', sans-serif; overflow: hidden; }
-    .main-header {
-        position: relative; padding: 35px; background: linear-gradient(135deg, #0a0a10, #1a1a2e); 
+    body {{ margin: 0; padding: 0; background-color: transparent; font-family: 'Inter', sans-serif; overflow: hidden; }}
+    .main-header {{
+        position: relative; padding: 35px; 
+        background: linear-gradient(135deg, {{"#0a0a10, #1a1a2e" if is_dark else "#f8fafc, #e2e8f0"}}); 
         border-radius: 24px; border-left: 12px solid #667eea; overflow: hidden; 
-        box-shadow: 0 30px 60px rgba(0,0,0,0.8); min-height: 160px; 
-        display: flex; flex-direction: column; justify-content: center;
-    }
-    #bg-carousel { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background-size: cover; background-position: center; opacity: 0.2; 
+        box-shadow: {{"0 30px 60px rgba(0,0,0,0.8)" if is_dark else "0 20px 40px rgba(0,0,0,0.1)"}}; 
+        min-height: 160px; display: flex; flex-direction: column; justify-content: center;
+    }}
+    #bg-carousel {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-size: cover; background-position: center; opacity: {0.2 if is_dark else 0.1}; 
         transition: background-image 2s ease-in-out; z-index: 0;
-    }
-    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(rgba(10,10,16,0.5) 0%, rgba(26,26,46,0.7) 100%);
+    }}
+    .overlay {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient({{"rgba(10,10,16,0.5) 0%, rgba(26,26,46,0.7) 100%" if is_dark else "rgba(248,250,252,0.8) 0%, rgba(226,232,240,0.9) 100%"}});
         z-index: 1; pointer-events: none;
-    }
-    .content { position: relative; z-index: 2; text-align: center; }
-    h1 { font-family: 'Orbitron', monospace; text-transform: uppercase; letter-spacing: 8px; 
+    }}
+    .content {{ position: relative; z-index: 2; text-align: center; }}
+    h1 {{ font-family: 'Orbitron', monospace; text-transform: uppercase; letter-spacing: 8px; 
         font-size: 3rem; margin: 0; background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
         background-size: 400% 400%; -webkit-background-clip: text; background-clip: text;
         -webkit-text-fill-color: transparent; animation: gradientMove 4s ease infinite;
         text-shadow: 0 0 20px rgba(102,126,234,0.6);
-    }
-    .status { color: #667eea; font-weight: 600; letter-spacing: 4px; font-size: 1rem; 
+    }}
+    .status {{ color: #667eea; font-weight: 600; letter-spacing: 4px; font-size: 1rem; 
         text-transform: uppercase; margin-top: 12px; font-family: 'Orbitron', monospace;
-    }
-    @keyframes gradientMove { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+    }}
+    @keyframes gradientMove {{ 0%,100%{{background-position:0% 50%}} 50%{{background-position:100% 50%}} }}
 </style>
 </head>
 <body>
@@ -207,7 +216,7 @@ header_code = """
         let index = 0;
         const bgDiv = document.getElementById('bg-carousel');
         function changeBackground() {
-            bgDiv.style.backgroundImage = `url('${images[index]}')`;
+            bgDiv.style.backgroundImage = `url('${{images[index]}}')`;
             index = (index + 1) % images.length;
         }
         changeBackground();
@@ -221,10 +230,9 @@ components.html(header_code, height=200)
 # TITRE
 st.markdown("### 🚀 **Plateforme d'Optimisation Logistique**")
 
-# GRILLE 3x2 - NOMS OFFICIELS ✅ LIENS pages/appX.py
+# GRILLE 3x2
 col1, col2, col3 = st.columns(3)
 
-# LIGNE 1
 with col1:
     st.markdown('''
     <div class="tool-card">
