@@ -1,16 +1,36 @@
-# home.py - Page d'accueil Logistics Intelligence ✅ CORRIGÉ
+# home.py - Page d'accueil Logistics Intelligence 
 import streamlit as st
 import streamlit.components.v1 as components
+
+# CSS pour cacher COMPLETEMENT la sidebar AVANT config
+st.markdown("""
+<style>
+    /* ✅ Cacher sidebar complètement */
+    section[data-testid="stSidebar"] { 
+        display: none !important; 
+        width: 0 !important; 
+        visibility: hidden !important;
+    }
+    /* Cacher expander sidebar */
+    .stSidebarCollapsedControl { display: none !important; }
+    /* Cacher toute trace de sidebar */
+    [data-testid="collapsedControl"] { display: none !important; }
+    /* Empêcher hover/resize */
+    .css-1d391kg { display: none !important; }
+    .css-mkog8s { display: none !important; }
+</style>
+""", unsafe_allow_html=True)
 
 # Configuration
 st.set_page_config(
     page_title="Logistics Intelligence", 
     page_icon="🚚", 
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="collapsed",
+    page_config={"disableCustomTheme": False}
 )
 
-# CSS Styling HOMOGÈNE ✅ FERMÉ CORRECTEMENT
+# CSS Styling HOMOGÈNE 
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
@@ -19,6 +39,8 @@ st.markdown("""
 body { 
     background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); 
     color: #e2e8f0; 
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 h1, h2, h3 { 
@@ -175,7 +197,7 @@ header_code = """
         <div class="overlay"></div>
         <div class="content">
             <h1>Logistics<span style="font-weight: 700;"> Intelligence</span></h1>
-            <div class="status">Au service de l’optimisation des systèmes industriels et logistiques</div>
+            <div class="status">Au service de l'optimisation des systèmes industriels et logistiques</div>
         </div>
     </div>
     <script>
@@ -199,7 +221,7 @@ header_code = """
 components.html(header_code, height=200)
 
 # TITRE
-st.markdown("### 🚀 **Plateforme d''Optimisation Logistique**")
+st.markdown("### 🚀 **Plateforme d'Optimisation Logistique**")
 
 # GRILLE 3x2 - NOMS OFFICIELS ✅ LIENS pages/appX.py
 col1, col2, col3 = st.columns(3)
@@ -276,4 +298,4 @@ with col6:
 
 # Footer
 st.markdown("---")
-st.markdown("*Optimisation logistique avancée - Suite complète d'outils* [web:11][web:21]")
+st.markdown("*Optimisation logistique avancée - Suite complète d'outils*")
