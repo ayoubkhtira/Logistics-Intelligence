@@ -552,8 +552,16 @@ with tab6:
         # Récupérer la route actuelle
         route_actuelle = st.session_state.shipment["route"]
         route_data = st.session_state.config["routes"][route_actuelle]
+        devise_route = route_data["devise"]
         
-        # Préparer les données pour l'éditeur principal (✅ SANS lambda function)
+        # Fonction pour convertir entre devises
+        def convert_to_base(amount, source_devise, config):
+            return amount * config["taux_change"][source_devise] / config["taux_change"][config["devise_base"]]
+        
+        def convert_from_base(amount, target_devise, config):
+            return amount * config["taux_change"][config["devise_base"]] / config["taux_change"][target_devise]
+        
+        # Préparer les données pour l'éditeur principal
         data_editor = []
         for categorie, montant in st.session_state.results.items():
             if "Frais Perso:" in categorie:
@@ -567,19 +575,30 @@ with tab6:
         
         col_main1, col_main2 = st.columns([3, 1])
         with col_main1:
-            # ✅ CORRIGÉ : column_config simplifié SANS lambda
             edited_main = st.data_editor(
                 df_main,
                 column_config={
-                    "Montant": st.column_config.NumberColumn(format="%.0f")
+                    "Montant": st.column_config.NumberColumn(
+                        label="Montant",
+                        format="%.0f",
+                        step=100.0
+                    )
                 },
                 use_container_width=True,
-                hide_index=False,
+                hide_index=True,
                 key="editor_resultats_main"
             )
         
         with col_main2:
             st.markdown("### **Actions Principales**")
+            
+            # Bouton pour recalculer après modification
+            if st.button("🔄 **Recalculer**", key="btn_recalculer"):
+                st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
+                st.success("✅ Résultats recalculés avec les nouvelles valeurs!")
+                st.rerun()
+            
+            # Bouton pour sauvegarder les modifications
             if st.button("💾 **Sauvegarder Frais Fixes**", key="btn_save_frais_fixes"):
                 for idx, row in edited_main.iterrows():
                     categorie = row["Catégorie"]
@@ -588,26 +607,50 @@ with tab6:
                     # Ne modifier que les lignes éditables
                     if row["Editable"] == "✅ Oui":
                         if categorie == "Frais Départ":
-                            total_actuel = sum(route_data["FraisMaroc"].values())
-                            if total_actuel > 0:
-                                ratio = nouveau_montant / total_actuel
-                                for k, v in route_data["FraisMaroc"].items():
-                                    route_data["FraisMaroc"][k] = v * ratio
+                            # Convertir le nouveau montant en MAD
+                            nouveau_montant_MAD = convert_from_base(nouveau_montant, "MAD", st.session_state.config)
+                            total_actuel_MAD = sum(route_data["FraisMaroc"].values())
+                            if total_actuel_MAD > 0:
+                                ratio = nouveau_montant_MAD / total_actuel_MAD
+                                for k in route_data["FraisMaroc"].keys():
+                                    route_data["FraisMaroc"][k] = route_data["FraisMaroc"][k] * ratio
                         
                         elif categorie == "Frais Arrivée":
-                            total_actuel = sum(route_data["FraisArrivee"].values())
-                            if total_actuel > 0:
-                                ratio = nouveau_montant / total_actuel
-                                for k, v in route_data["FraisArrivee"].items():
-                                    route_data["FraisArrivee"][k] = v * ratio
+                            # Convertir le nouveau montant en devise de route
+                            nouveau_montant_devise = convert_from_base(nouveau_montant, devise_route, st.session_state.config)
+                            total_actuel_devise = sum(route_data["FraisArrivee"].values())
+                            if total_actuel_devise > 0:
+                                ratio = nouveau_montant_devise / total_actuel_devise
+                                for k in route_data["FraisArrivee"].keys():
+                                    route_data["FraisArrivee"][k] = route_data["FraisArrivee"][k] * ratio
                         
                         elif categorie == "Fret Maritime":
+                            # Recalculer le fret de base
                             if st.session_state.shipment["nb_up"] > 0:
-                                route_data["FretMaritime"]["Fret"] = nouveau_montant / st.session_state.shipment["nb_up"]
+                                # Convertir en devise de route
+                                nouveau_montant_devise = convert_from_base(nouveau_montant, devise_route, st.session_state.config)
+                                fret_data = route_data["FretMaritime"]
+                                total_coeff = (1 + fret_data["BAF"] + fret_data["CAF"] - 
+                                             fret_data["Rabais"] - fret_data["Remise"] - fret_data["Ristourne"])
+                                if total_coeff != 0:
+                                    nouveau_fret = nouveau_montant_devise / (st.session_state.shipment["nb_up"] * total_coeff)
+                                    route_data["FretMaritime"]["Fret"] = max(0, nouveau_fret)
                         
                         elif categorie == "Fret Routier":
+                            # Recalculer le fret de base
                             if st.session_state.shipment["nb_up"] > 0:
-                                route_data["FretRoutier"]["Fret"] = (nouveau_montant / st.session_state.shipment["nb_up"]) * 0.95
+                                # Convertir en devise de route
+                                nouveau_montant_devise = convert_from_base(nouveau_montant, devise_route, st.session_state.config)
+                                fret_data = route_data["FretRoutier"]
+                                total_coeff = (1 + fret_data["CAF"] - fret_data["Rabais"] - 
+                                             fret_data["Remise"] - fret_data["Ristourne"])
+                                if total_coeff != 0:
+                                    # Soustraire l'assurance si présente
+                                    assurance_montant = st.session_state.shipment["valeur_cip"] * fret_data.get("Assurance", 0)
+                                    assurance_devise = convert_to_base(assurance_montant, devise_route, st.session_state.config)
+                                    fret_sans_assurance = nouveau_montant_devise - assurance_devise
+                                    nouveau_fret = fret_sans_assurance / (st.session_state.shipment["nb_up"] * total_coeff)
+                                    route_data["FretRoutier"]["Fret"] = max(0, nouveau_fret)
                 
                 # Recalculer TOUS les résultats
                 st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
@@ -622,12 +665,17 @@ with tab6:
             
             frais_list = []
             for nom, data in frais_perso.items():
+                # Trouver le montant dans les résultats
+                key_perso = f"Frais Perso: {nom}"
+                montant_result = st.session_state.results.get(key_perso, 0)
+                
                 frais_list.append({
                     "Nom": nom,
-                    "Montant": float(data["montant"]),
+                    "Montant Base": float(data["montant"]),
+                    "Montant Calculé": float(montant_result),
                     "Devise": data["devise"],
                     "Unité": data["unite"],
-                    "Pourcentage CIP": float(data.get("pourcentage_cip", 0)) * 100
+                    "% CIP": float(data.get("pourcentage_cip", 0)) * 100
                 })
             
             df_frais = pd.DataFrame(frais_list)
@@ -637,8 +685,9 @@ with tab6:
                 edited_frais = st.data_editor(
                     df_frais,
                     column_config={
-                        "Montant": st.column_config.NumberColumn(format="%.2f"),
-                        "Pourcentage CIP": st.column_config.NumberColumn(format="%.2f")
+                        "Montant Base": st.column_config.NumberColumn(format="%.2f"),
+                        "Montant Calculé": st.column_config.NumberColumn(format="%.2f"),
+                        "% CIP": st.column_config.NumberColumn(format="%.2f")
                     },
                     use_container_width=True,
                     key=f"editor_frais_resultats_{route_actuelle}"
@@ -648,45 +697,100 @@ with tab6:
                 if st.button("💾 **Sauvegarder Perso**", key=f"btn_save_perso_res_{route_actuelle}"):
                     for idx, row in edited_frais.iterrows():
                         nom = row["Nom"]
-                        frais_perso[nom] = {
-                            "montant": float(row["Montant"]),
-                            "devise": row["Devise"],
-                            "unite": row["Unité"],
-                            "pourcentage_cip": float(row["Pourcentage CIP"]) / 100
-                        }
+                        # Mettre à jour le montant de base
+                        frais_perso[nom]["montant"] = float(row["Montant Base"])
+                        frais_perso[nom]["pourcentage_cip"] = float(row["% CIP"]) / 100
+                    
+                    # Recalculer avec les nouveaux paramètres
                     st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
-                    st.success("✅ Frais personnalisés sauvegardés!")
+                    st.success("✅ Frais personnalisés sauvegardés et recalculés!")
                     st.rerun()
                 
-                suppr_frais = st.multiselect("🗑️ Supprimer", [row["Nom"] for _, row in edited_frais.iterrows()], key=f"suppr_perso_res_{route_actuelle}")
+                # Sélection pour suppression
+                noms_frais = [row["Nom"] for _, row in edited_frais.iterrows()]
+                suppr_frais = st.multiselect("🗑️ Supprimer", noms_frais, key=f"suppr_perso_res_{route_actuelle}")
                 if st.button("🗑️ **Supprimer**", key=f"btn_del_perso_res_{route_actuelle}") and suppr_frais:
                     for nom in suppr_frais:
                         del frais_perso[nom]
                     st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
-                    st.success(f"✅ {len(suppr_frais)} supprimés!")
+                    st.success(f"✅ {len(suppr_frais)} frais supprimés et recalculés!")
                     st.rerun()
         
         # Affichage final du tableau récapitulatif
         st.markdown("---")
         st.markdown("### 📊 **Récapitulatif Final**")
-        df_final = pd.DataFrame([
-            [k, f"{v:,.0f}", st.session_state.config['devise_base']] 
-            for k, v in st.session_state.results.items()
-        ], columns=["**Catégorie**", "**Montant**", "Devise"])
-        st.dataframe(df_final, use_container_width=True)
         
-        # Graphique et export
-        fig = px.pie(values=list(st.session_state.results.values()), names=list(st.session_state.results.keys()), hole=0.4)
+        # Créer un DataFrame avec toutes les catégories
+        categories = []
+        montants = []
+        
+        for categorie, montant in st.session_state.results.items():
+            if "Frais Perso:" in categorie:
+                categories.append(categorie.replace("Frais Perso: ", ""))
+            else:
+                categories.append(categorie)
+            montants.append(float(montant))
+        
+        df_final = pd.DataFrame({
+            "**Catégorie**": categories,
+            "**Montant**": [f"{m:,.0f}" for m in montants],
+            "Devise": st.session_state.config['devise_base']
+        })
+        
+        st.dataframe(df_final, use_container_width=True, hide_index=True)
+        
+        # Graphique
+        fig = px.pie(
+            values=montants, 
+            names=categories, 
+            hole=0.4,
+            title="Répartition des coûts"
+        )
+        fig.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(fig, use_container_width=True)
         
+        # Export Excel
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            pd.DataFrame(st.session_state.results.items(), columns=["Catégorie", "Montant"]).to_excel(writer, 'Resultats')
-            pd.DataFrame([st.session_state.shipment]).to_excel(writer, 'Envoi')
-            pd.DataFrame(st.session_state.history).to_excel(writer, 'Historique')
-        st.download_button("📥 **EXCEL COMPLET**", output.getvalue(), f"Transport_v4.2_{date.today().strftime('%Y%m%d')}.xlsx")
-    st.markdown('</div>', unsafe_allow_html=True)
-
+            # Feuille résultats détaillés
+            df_detailed = pd.DataFrame({
+                "Catégorie": categories,
+                "Montant": montants,
+                "Devise": st.session_state.config['devise_base']
+            })
+            df_detailed.to_excel(writer, sheet_name='Resultats', index=False)
+            
+            # Feuille paramètres d'envoi
+            df_shipment = pd.DataFrame([st.session_state.shipment])
+            df_shipment.to_excel(writer, sheet_name='Envoi', index=False)
+            
+            # Feuille historique
+            if st.session_state.history:
+                df_history = pd.DataFrame(st.session_state.history)
+                df_history.to_excel(writer, sheet_name='Historique', index=False)
+            
+            # Feuille configuration route
+            df_route = pd.DataFrame({
+                "Paramètre": list(route_data.keys()),
+                "Valeur": [str(v) for v in route_data.values()]
+            })
+            df_route.to_excel(writer, sheet_name='Configuration Route', index=False)
+        
+        st.download_button(
+            "📥 **EXCEL COMPLET**", 
+            output.getvalue(), 
+            f"Transport_{route_actuelle}_{date.today().strftime('%Y%m%d')}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    
+    # Si pas de résultats, afficher un message
+    else:
+        st.info("ℹ️ **Aucun résultat à afficher. Veuillez effectuer un calcul dans l'onglet '📦 Calcul'.**")
+        
+        # Bouton pour aller directement à l'onglet Calcul
+        if st.button("📦 **Aller au Calcul**", use_container_width=True):
+            st.session_state.active_tab = 0  # Index de l'onglet Calcul
+            st.rerun()
 
 with tab7:
     st.markdown("### 📋 **LÉGENDE & AIDE**")
