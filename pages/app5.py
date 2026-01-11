@@ -547,7 +547,7 @@ with tab6:
         # ========================================
         # 🔧 ÉDITEUR COMPLET DES RÉSULTATS ✅ CORRIGÉ
         # ========================================
-        st.markdown("### 🔧 **Éditeur Complet - Modifier Tous les Frais**")
+        st.markdown("### 🔧 **Modifier les Frais**")
         
         # Récupérer la route actuelle
         route_actuelle = st.session_state.shipment["route"]
@@ -590,7 +590,7 @@ with tab6:
             )
         
         with col_main2:
-            st.markdown("### **Actions Principales**")
+            st.markdown("")
             
             # Bouton unique pour sauvegarder les modifications
             if st.button("💾 **Sauvegarder les frais**", key="btn_save_frais_fixes", use_container_width=True):
