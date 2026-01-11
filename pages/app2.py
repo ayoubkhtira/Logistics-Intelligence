@@ -211,7 +211,7 @@ else:
     col_nav1, col_nav2 = st.columns([1, 4])
     with col_nav1:
         if st.button("RETOUR"):
-            st.switch_page("app.py")
+            st.switch_page("home.py")
     with col_nav2:
         if st.button("🛠️CONFIGURATION"):
             st.session_state.view_mode = 'settings'
