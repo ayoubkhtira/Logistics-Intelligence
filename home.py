@@ -238,7 +238,7 @@ html_header = f"""
     <div class="container">
         <div class="bg-anim"></div>
         <h1>Logistics Intelligence</h1>
-        <p>Advanced Industrial Optimization</p>
+        <p></p>
     </div>
 </body>
 </html>
@@ -306,7 +306,7 @@ with col6:
 st.markdown("---")
 st.markdown(
     f"<div style='text-align: center; color: var(--text-sub); font-size: 0.8rem; padding: 20px;'>"
-    f"© 2024 Logistics Intelligence Suite • Version 2.0"
+    f"© Logistics Intelligence"
     f"</div>", 
     unsafe_allow_html=True
 )
