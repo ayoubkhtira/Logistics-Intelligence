@@ -682,20 +682,6 @@ with tab6:
                 st.success("✅ Frais fixes mis à jour & recalculés!")
                 st.rerun()
             
-            # Bouton spécial pour forcer le fret à 0
-            if st.button("🔧 **Forcer Fret Routier à 0**", key="btn_force_zero"):
-                route_data["FretRoutier"]["Fret"] = 0
-                route_data["FretRoutier"]["CAF"] = 0
-                route_data["FretRoutier"]["Rabais"] = 0
-                route_data["FretRoutier"]["Remise"] = 0
-                route_data["FretRoutier"]["Ristourne"] = 0
-                route_data["FretRoutier"]["Assurance"] = 0
-                
-                # Recalculer
-                st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
-                st.success("✅ Fret routier forcé à 0!")
-                st.rerun()
-            
             # Bouton pour réinitialiser les valeurs originales
             if st.button("🔄 **Réinitialiser les valeurs**", key="btn_reset_values"):
                 # Récupérer les valeurs originales de la route
