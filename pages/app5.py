@@ -547,7 +547,7 @@ with tab6:
         # ========================================
         # 🔧 ÉDITEUR COMPLET DES RÉSULTATS ✅ CORRIGÉ
         # ========================================
-        st.markdown("### 🔧 **Éditeur Complet - Modifier Tous les Frais**")
+        st.markdown("### 🔧 **Éditeur Complet**")
         
         # Récupérer la route actuelle
         route_actuelle = st.session_state.shipment["route"]
