@@ -554,7 +554,7 @@ with tab6:
         route_data = st.session_state.config["routes"][route_actuelle]
         devise_route = route_data["devise"]
         
-        # Fonction pour convertir entre devises
+        # Fonctions de conversion
         def convert_to_base(amount, source_devise, config):
             return amount * config["taux_change"][source_devise] / config["taux_change"][config["devise_base"]]
         
@@ -632,29 +632,84 @@ with tab6:
                                 fret_data = route_data["FretMaritime"]
                                 total_coeff = (1 + fret_data["BAF"] + fret_data["CAF"] - 
                                              fret_data["Rabais"] - fret_data["Remise"] - fret_data["Ristourne"])
-                                if total_coeff != 0:
+                                if total_coeff > 0:
                                     nouveau_fret = nouveau_montant_devise / (st.session_state.shipment["nb_up"] * total_coeff)
                                     route_data["FretMaritime"]["Fret"] = max(0, nouveau_fret)
+                                else:
+                                    route_data["FretMaritime"]["Fret"] = 0
                         
                         elif categorie == "Fret Routier":
-                            # Recalculer le fret de base
-                            if st.session_state.shipment["nb_up"] > 0:
-                                # Convertir en devise de route
-                                nouveau_montant_devise = convert_from_base(nouveau_montant, devise_route, st.session_state.config)
-                                fret_data = route_data["FretRoutier"]
-                                total_coeff = (1 + fret_data["CAF"] - fret_data["Rabais"] - 
-                                             fret_data["Remise"] - fret_data["Ristourne"])
-                                if total_coeff != 0:
-                                    # Soustraire l'assurance si présente
-                                    assurance_montant = st.session_state.shipment["valeur_cip"] * fret_data.get("Assurance", 0)
-                                    assurance_devise = convert_to_base(assurance_montant, devise_route, st.session_state.config)
-                                    fret_sans_assurance = nouveau_montant_devise - assurance_devise
-                                    nouveau_fret = fret_sans_assurance / (st.session_state.shipment["nb_up"] * total_coeff)
-                                    route_data["FretRoutier"]["Fret"] = max(0, nouveau_fret)
+                            # Gérer le cas où l'utilisateur met 0
+                            if nouveau_montant == 0:
+                                # Forcer tous les paramètres à 0 pour avoir un résultat de 0
+                                route_data["FretRoutier"]["Fret"] = 0
+                                route_data["FretRoutier"]["CAF"] = 0
+                                route_data["FretRoutier"]["Rabais"] = 0
+                                route_data["FretRoutier"]["Remise"] = 0
+                                route_data["FretRoutier"]["Ristourne"] = 0
+                                route_data["FretRoutier"]["Assurance"] = 0
+                            else:
+                                # Calcul normal avec coefficients
+                                if st.session_state.shipment["nb_up"] > 0:
+                                    # Convertir en devise de route
+                                    nouveau_montant_devise = convert_from_base(nouveau_montant, devise_route, st.session_state.config)
+                                    fret_data = route_data["FretRoutier"]
+                                    
+                                    # Calculer le coefficient total
+                                    total_coeff = (1 + fret_data["CAF"] - fret_data["Rabais"] - 
+                                                 fret_data["Remise"] - fret_data["Ristourne"])
+                                    
+                                    if total_coeff > 0:
+                                        # Calculer la partie assurance
+                                        assurance_montant = st.session_state.shipment["valeur_cip"] * fret_data.get("Assurance", 0)
+                                        assurance_devise = convert_to_base(assurance_montant, devise_route, st.session_state.config)
+                                        
+                                        # Calculer le montant restant pour le fret (sans assurance)
+                                        montant_fret_sans_assurance = nouveau_montant_devise - assurance_devise
+                                        
+                                        if montant_fret_sans_assurance > 0:
+                                            # Calculer le nouveau Fret de base
+                                            nouveau_fret_base = montant_fret_sans_assurance / (st.session_state.shipment["nb_up"] * total_coeff)
+                                            route_data["FretRoutier"]["Fret"] = max(0, nouveau_fret_base)
+                                        else:
+                                            # Si le montant sans assurance est négatif ou 0, mettre le fret à 0
+                                            route_data["FretRoutier"]["Fret"] = 0
+                                    else:
+                                        route_data["FretRoutier"]["Fret"] = 0
                 
                 # Recalculer TOUS les résultats
                 st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
                 st.success("✅ Frais fixes mis à jour & recalculés!")
+                st.rerun()
+            
+            # Bouton spécial pour forcer le fret à 0
+            if st.button("🔧 **Forcer Fret Routier à 0**", key="btn_force_zero"):
+                route_data["FretRoutier"]["Fret"] = 0
+                route_data["FretRoutier"]["CAF"] = 0
+                route_data["FretRoutier"]["Rabais"] = 0
+                route_data["FretRoutier"]["Remise"] = 0
+                route_data["FretRoutier"]["Ristourne"] = 0
+                route_data["FretRoutier"]["Assurance"] = 0
+                
+                # Recalculer
+                st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
+                st.success("✅ Fret routier forcé à 0!")
+                st.rerun()
+            
+            # Bouton pour réinitialiser les valeurs originales
+            if st.button("🔄 **Réinitialiser les valeurs**", key="btn_reset_values"):
+                # Récupérer les valeurs originales de la route
+                default_route = list(st.session_state.config["routes"].values())[0]
+                route_data.update({
+                    "FraisMaroc": default_route["FraisMaroc"].copy(),
+                    "FraisArrivee": default_route["FraisArrivee"].copy(),
+                    "FretMaritime": default_route["FretMaritime"].copy(),
+                    "FretRoutier": default_route["FretRoutier"].copy(),
+                })
+                
+                # Recalculer
+                st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
+                st.success("✅ Valeurs réinitialisées!")
                 st.rerun()
         
         # Section Frais Personnalisés
@@ -791,7 +846,6 @@ with tab6:
         if st.button("📦 **Aller au Calcul**", use_container_width=True):
             st.session_state.active_tab = 0  # Index de l'onglet Calcul
             st.rerun()
-
 with tab7:
     st.markdown("### 📋 **LÉGENDE & AIDE**")
     st.markdown("""
