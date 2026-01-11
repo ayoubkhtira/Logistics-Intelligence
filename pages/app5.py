@@ -547,7 +547,7 @@ with tab6:
         # ========================================
         # 🔧 ÉDITEUR COMPLET DES RÉSULTATS ✅ CORRIGÉ
         # ========================================
-        st.markdown("### 🔧 **Éditeur Complet**")
+        st.markdown("### 🔧 **Éditeur Complet - Modifier Tous les Frais**")
         
         # Récupérer la route actuelle
         route_actuelle = st.session_state.shipment["route"]
@@ -592,14 +592,8 @@ with tab6:
         with col_main2:
             st.markdown("### **Actions Principales**")
             
-            # Bouton pour recalculer après modification
-            if st.button("🔄 **Recalculer**", key="btn_recalculer"):
-                st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
-                st.success("✅ Résultats recalculés avec les nouvelles valeurs!")
-                st.rerun()
-            
-            # Bouton pour sauvegarder les modifications
-            if st.button("💾 **Sauvegarder Frais Fixes**", key="btn_save_frais_fixes"):
+            # Bouton unique pour sauvegarder les modifications
+            if st.button("💾 **Sauvegarder les frais**", key="btn_save_frais_fixes", use_container_width=True):
                 for idx, row in edited_main.iterrows():
                     categorie = row["Catégorie"]
                     nouveau_montant = float(row["Montant"])
@@ -679,23 +673,7 @@ with tab6:
                 
                 # Recalculer TOUS les résultats
                 st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
-                st.success("✅ Frais fixes mis à jour & recalculés!")
-                st.rerun()
-            
-            # Bouton pour réinitialiser les valeurs originales
-            if st.button("🔄 **Réinitialiser les valeurs**", key="btn_reset_values"):
-                # Récupérer les valeurs originales de la route
-                default_route = list(st.session_state.config["routes"].values())[0]
-                route_data.update({
-                    "FraisMaroc": default_route["FraisMaroc"].copy(),
-                    "FraisArrivee": default_route["FraisArrivee"].copy(),
-                    "FretMaritime": default_route["FretMaritime"].copy(),
-                    "FretRoutier": default_route["FretRoutier"].copy(),
-                })
-                
-                # Recalculer
-                st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
-                st.success("✅ Valeurs réinitialisées!")
+                st.success("✅ Frais mis à jour et recalculés!")
                 st.rerun()
         
         # Section Frais Personnalisés
@@ -735,7 +713,7 @@ with tab6:
                 )
             
             with col_frais2:
-                if st.button("💾 **Sauvegarder Perso**", key=f"btn_save_perso_res_{route_actuelle}"):
+                if st.button("💾 **Sauvegarder Perso**", key=f"btn_save_perso_res_{route_actuelle}", use_container_width=True):
                     for idx, row in edited_frais.iterrows():
                         nom = row["Nom"]
                         # Mettre à jour le montant de base
@@ -750,7 +728,7 @@ with tab6:
                 # Sélection pour suppression
                 noms_frais = [row["Nom"] for _, row in edited_frais.iterrows()]
                 suppr_frais = st.multiselect("🗑️ Supprimer", noms_frais, key=f"suppr_perso_res_{route_actuelle}")
-                if st.button("🗑️ **Supprimer**", key=f"btn_del_perso_res_{route_actuelle}") and suppr_frais:
+                if st.button("🗑️ **Supprimer**", key=f"btn_del_perso_res_{route_actuelle}", use_container_width=True) and suppr_frais:
                     for nom in suppr_frais:
                         del frais_perso[nom]
                     st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
