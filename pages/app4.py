@@ -286,7 +286,7 @@ header_code = """
         <div class="overlay"></div>
         <div class="content">
             <h1>MRP/CBN <span style="font-weight: 700;">Solution</span></h1>
-            <div class="status">Manufacturing Excellence <span class="active-dot"></span></div>
+            <div class="status">Logistics Intelligence <span class="active-dot"></span></div>
         </div>
     </div>
     <script>
