@@ -1,4 +1,3 @@
-# home.py - VERSION MODERNISÉE & HOMOGÈNE
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -7,7 +6,7 @@ import streamlit.components.v1 as components
 # =============================================================================
 st.set_page_config(
     page_title="Logistics Intelligence",
-    page_icon="🚚",
+    page_icon="✨",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -15,7 +14,10 @@ st.set_page_config(
 def get_theme():
     """Détecte le thème (dark par défaut pour le look moderne)"""
     try:
-        return st.get_option("theme.base") or "dark"
+        # Tentative de récupération du thème
+        if hasattr(st, 'theme'):
+            return st.theme.base or "dark"
+        return "dark"
     except:
         return "dark"
 
@@ -35,8 +37,8 @@ css_variables = f"""
     --success: #10b981;
     
     /* Couleurs dynamiques selon le thème */
-    --bg-body: {'#0f172a' if is_dark else '#f1f5f9'};
-    --bg-card: {'rgba(30, 41, 59, 0.7)' if is_dark else 'rgba(255, 255, 255, 0.8)'};
+    --bg-body: {'rgba(15, 23, 42, 0.85)' if is_dark else 'rgba(241, 245, 249, 0.85)'};
+    --bg-card: {'rgba(30, 41, 59, 0.85)' if is_dark else 'rgba(255, 255, 255, 0.85)'};
     --text-main: {'#f8fafc' if is_dark else '#1e293b'};
     --text-sub: {'#94a3b8' if is_dark else '#64748b'};
     --border-card: {'rgba(255, 255, 255, 0.1)' if is_dark else 'rgba(0, 0, 0, 0.05)'};
@@ -51,10 +53,22 @@ st.markdown(f"""
     
     {css_variables}
 
-    /* --- RESET & BASE --- */
+    /* --- BACKGROUND IMAGE --- */
     .stApp {{
-        background-color: var(--bg-body);
+        background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.9)),
+                    url('https://img.freepik.com/free-photo/young-man-working-warehouse-with-boxes_1303-16616.jpg?t=st=1768576297~exp=1768579897~hmac=b751ddd6c6ba764a76c5865607befdccd242fe4ad7516559cf72232156eff7d0&w=1480') no-repeat center center fixed;
+        background-size: cover;
+        background-attachment: fixed;
         font-family: 'Inter', sans-serif;
+        color: var(--text-main);
+        min-height: 100vh;
+    }}
+    
+    /* Assurer que tout le contenu est visible */
+    .main .block-container {{
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+        background: transparent;
     }}
     
     /* Cacher la Sidebar complètement */
@@ -63,6 +77,11 @@ st.markdown(f"""
     [data-testid="collapsedControl"] {{ 
         display: none !important; 
     }}
+    
+    /* Cacher les éléments par défaut de Streamlit */
+    #MainMenu {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
+    header {{visibility: hidden;}}
 
     /* --- COMPOSANTS UI --- */
     
@@ -77,7 +96,7 @@ st.markdown(f"""
         border: 1px solid var(--border-card);
         border-radius: 20px;
         padding: 2rem 1.5rem;
-        height: 280px; /* Hauteur fixe pour alignement */
+        height: 280px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -87,6 +106,7 @@ st.markdown(f"""
         box-shadow: var(--shadow-card);
         position: relative;
         overflow: hidden;
+        margin-bottom: 1rem;
     }}
     
     .tool-card:hover {{
@@ -95,11 +115,16 @@ st.markdown(f"""
         box-shadow: var(--glow), var(--shadow-card);
     }}
 
-    /* Icônes */
+    /* Icônes textuelles (remplacement des emojis) */
     .tool-icon {{
-        font-size: 3.5rem;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 900;
         margin-bottom: 1rem;
-        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+        color: transparent;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        background-clip: text;
         transition: transform 0.3s ease;
     }}
     .tool-card:hover .tool-icon {{ transform: scale(1.1); }}
@@ -125,7 +150,7 @@ st.markdown(f"""
     /* Carte "Coming Soon" Spécifique */
     .soon-card {{
         border: 1px dashed var(--success);
-        background: rgba(16, 185, 129, 0.05);
+        background: rgba(16, 185, 129, 0.1);
     }}
     .soon-badge {{
         margin-top: 1rem;
@@ -140,7 +165,6 @@ st.markdown(f"""
     }}
 
     /* --- BOUTONS STREAMLIT --- */
-    /* On cible les boutons pour qu'ils s'intègrent au design */
     div.stButton > button {{
         width: 100%;
         border: none;
@@ -151,10 +175,11 @@ st.markdown(f"""
         font-size: 0.8rem;
         padding: 0.75rem 1rem;
         border-radius: 12px;
-        margin-top: 0px; /* Collé à la carte visuellement si besoin, ou espacé */
+        margin-top: 10px;
         transition: all 0.3s ease;
         box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         letter-spacing: 1px;
+        cursor: pointer;
     }}
 
     div.stButton > button:hover {{
@@ -165,38 +190,63 @@ st.markdown(f"""
         border: none;
     }}
 
-    div.stButton > button:focus {{
-        color: white;
-        border: none;
-        box-shadow: none;
-    }}
-    
+    /* Style pour bouton désactivé */
     div.stButton > button:disabled {{
-        background: var(--bg-card);
-        color: var(--text-sub);
+        background: #6b7280;
         cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
     }}
 
     /* --- RESPONSIVE MOBILE --- */
     @media (max-width: 768px) {{
-        .tool-card {{ height: auto; min-height: 220px; padding: 1.5rem; margin-bottom: 0.5rem; }}
-        .tool-icon {{ font-size: 2.5rem; }}
+        .tool-card {{ 
+            height: auto; 
+            min-height: 220px; 
+            padding: 1.5rem; 
+            margin-bottom: 1.5rem; 
+        }}
+        .tool-icon {{ font-size: 1.8rem; }}
         .tool-title {{ font-size: 1rem; }}
-        /* Force 1 colonne sur mobile si Streamlit ne le fait pas auto */
-        [data-testid="column"] {{ width: 100% !important; flex: 1 1 auto !important; min-width: 100% !important; }}
+        [data-testid="column"] {{ 
+            width: 100% !important; 
+            flex: 1 1 auto !important; 
+            min-width: 100% !important; 
+        }}
     }}
 
     /* Séparateur */
-    hr {{ border-color: var(--border-card); margin: 3rem 0; }}
+    hr {{ 
+        border-color: var(--border-card); 
+        margin: 3rem 0; 
+        opacity: 0.3;
+    }}
+    
+    /* Footer */
+    .footer {{
+        text-align: center;
+        color: var(--text-sub);
+        font-size: 0.8rem;
+        padding: 20px;
+        margin-top: 2rem;
+    }}
+    
+    /* Titre section */
+    .section-title {{
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.5rem;
+        color: var(--text-main);
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }}
 </style>
 """, unsafe_allow_html=True)
 
 # =============================================================================
 # 3. HEADER ANIMÉ (HTML/JS OPTIMISÉ)
 # =============================================================================
-# Note: J'ai épuré le HTML pour qu'il soit plus léger et utilise les mêmes polices
-header_bg_grad = "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)" if is_dark else "linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%)"
-text_color = "#f8fafc" if is_dark else "#1e293b"
+header_bg_grad = "linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 27, 75, 0.9) 100%)"
+text_color = "#f8fafc"
 
 html_header = f"""
 <!DOCTYPE html>
@@ -204,41 +254,79 @@ html_header = f"""
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Inter:wght@400&display=swap" rel="stylesheet">
     <style>
-        body {{ margin: 0; padding: 10px; background: transparent; font-family: 'Inter', sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 160px; }}
+        body {{ 
+            margin: 0; 
+            padding: 10px; 
+            background: transparent; 
+            font-family: 'Inter', sans-serif; 
+            overflow: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            height: 160px; 
+        }}
         .container {{
-            width: 100%; height: 100%;
+            width: 100%; 
+            height: 100%;
             background: {header_bg_grad};
             border-radius: 24px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
             border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
         }}
         .bg-anim {{
-            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            position: absolute; 
+            top: -50%; 
+            left: -50%; 
+            width: 200%; 
+            height: 200%;
             background: radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%);
             animation: rotate 15s linear infinite;
         }}
-        @keyframes rotate {{ 0% {{ transform: rotate(0deg); }} 100% {{ transform: rotate(360deg); }} }}
+        @keyframes rotate {{ 
+            0% {{ transform: rotate(0deg); }} 
+            100% {{ transform: rotate(360deg); }} 
+        }}
         h1 {{
-            font-family: 'Orbitron', sans-serif; font-size: 2.5em; margin: 0; z-index: 2;
+            font-family: 'Orbitron', sans-serif; 
+            font-size: 2.5em; 
+            margin: 0; 
+            z-index: 2;
             background: linear-gradient(to right, #818cf8, #c084fc, #34d399);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-transform: uppercase; letter-spacing: 4px; font-weight: 900;
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase; 
+            letter-spacing: 4px; 
+            font-weight: 900;
             text-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }}
         p {{
-            color: {text_color}; opacity: 0.8; font-size: 0.9em; margin-top: 10px; z-index: 2; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
+            color: {text_color}; 
+            opacity: 0.8; 
+            font-size: 0.9em; 
+            margin-top: 10px; 
+            z-index: 2; 
+            letter-spacing: 2px; 
+            text-transform: uppercase; 
+            font-weight: 600;
         }}
-        @media (max-width: 600px) {{ h1 {{ font-size: 1.8em; letter-spacing: 2px; }} p {{ font-size: 0.7em; }} }}
+        @media (max-width: 600px) {{ 
+            h1 {{ font-size: 1.8em; letter-spacing: 2px; }} 
+            p {{ font-size: 0.7em; }} 
+        }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="bg-anim"></div>
         <h1>Logistics Intelligence</h1>
-        <p></p>
+        <p>Optimisation Avancée des Opérations Logistiques</p>
     </div>
 </body>
 </html>
@@ -250,63 +338,88 @@ components.html(html_header, height=180)
 # =============================================================================
 
 # Fonction helper pour créer une carte
-def app_card(icon, title, desc, btn_key, page_path, is_coming_soon=False):
+def app_card(icon_text, title, desc, btn_key, page_path, is_coming_soon=False):
+    """Crée une carte d'application avec design moderne"""
+    
     # Partie visuelle (HTML)
     if is_coming_soon:
         card_html = f"""
         <div class="tool-card soon-card">
-            <div class="tool-icon">{icon}</div>
+            <div class="tool-icon">{icon_text}</div>
             <div class="tool-title">{title}</div>
             <div class="tool-desc">{desc}</div>
-            <div class="soon-badge">COMING SOON</div>
+            <div class="soon-badge">Bientôt Disponible</div>
         </div>
         """
         st.markdown(card_html, unsafe_allow_html=True)
+        # Bouton désactivé pour "Coming Soon"
+        st.button("Accéder à l'outil", key=f"{btn_key}_disabled", disabled=True, use_container_width=True)
     else:
         card_html = f"""
         <div class="tool-card">
-            <div class="tool-icon">{icon}</div>
+            <div class="tool-icon">{icon_text}</div>
             <div class="tool-title">{title}</div>
             <div class="tool-desc">{desc}</div>
         </div>
         """
         st.markdown(card_html, unsafe_allow_html=True)
         
-        # Bouton Streamlit (Séparé du HTML mais collé visuellement via CSS)
-        try:
-            if st.button("OUVRIR L'OUTIL", key=btn_key, use_container_width=True):
+        # Bouton Streamlit fonctionnel
+        if st.button("Accéder à l'outil", key=btn_key, use_container_width=True):
+            try:
                 st.switch_page(page_path)
-        except Exception:
-            # Fallback si la page n'existe pas encore en dev
-            st.button("OUVRIR L'OUTIL", key=btn_key+"_dis", disabled=True, use_container_width=True)
+            except Exception as e:
+                st.error(f"Impossible d'ouvrir la page: {e}")
 
-# Ligne 1
+# Section Applications
+st.markdown('<div class="section-title">Outils d\'Optimisation Logistique</div>', unsafe_allow_html=True)
+st.markdown('<div style="margin: 20px 0;"></div>', unsafe_allow_html=True)
+
+# Ligne 1 - Applications principales
 col1, col2, col3 = st.columns(3)
+
 with col1:
-    app_card("📦", "Pallet Optimizer", "Maximisez le remplissage de vos palettes 3D", "btn_1", "pages/app1.py")
+    app_card("PO", "Optimisation de Palettes", 
+             "Maximisez le remplissage de vos palettes 3D avec nos algorithmes avancés", 
+             "btn_1", "pages/app1.py")
+
 with col2:
-    app_card("🚛", "Container Load", "Planification de chargement conteneur", "btn_2", "pages/app2.py")
+    app_card("CL", "Chargement Conteneurs", 
+             "Planification intelligente du chargement de conteneurs pour optimiser l'espace", 
+             "btn_2", "pages/app2.py")
+
 with col3:
-    app_card("📍", "Vogel System", "Algorithme d'approvisionnement optimisé", "btn_3", "pages/app3.py")
+    app_card("VS", "Système de Vogel", 
+             "Algorithme d'approvisionnement optimisé pour réduire les coûts de transport", 
+             "btn_3", "pages/app3.py")
 
 # Espacement
-st.markdown("<div style='height: 24px'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height: 30px'></div>", unsafe_allow_html=True)
 
-# Ligne 2
+# Ligne 2 - Autres applications
 col4, col5, col6 = st.columns(3)
-with col4:
-    app_card("⚙️", "MRP / CBN Solution", "Gestion des besoins en composants", "btn_4", "pages/app4.py")
-with col5:
-    app_card("💰", "Cost Calculator", "Estimation précise des coûts logistiques", "btn_5", "pages/app5.py")
-with col6:
-    # Carte Coming Soon
-    app_card("📈", "Six Sigma", "Analyse de qualité et réduction défauts", "btn_6", "", is_coming_soon=True)
 
-# Footer discret
+with col4:
+    app_card("MRP", "Solution MRP/CBN", 
+             "Gestion des besoins en composants et planification des ressources", 
+             "btn_4", "pages/app4.py")
+
+with col5:
+    app_card("CC", "Calcul des Coûts", 
+             "Estimation précise des coûts logistiques et analyse des économies", 
+             "btn_5", "pages/app5.py")
+
+with col6:
+    app_card("SS", "Méthode Six Sigma", 
+             "Analyse de qualité et réduction des défauts dans les processus", 
+             "btn_6", "", is_coming_soon=True)
+
+# Footer
 st.markdown("---")
 st.markdown(
-    f"<div style='text-align: center; color: var(--text-sub); font-size: 0.8rem; padding: 20px;'>"
-    f"© Logistics Intelligence"
-    f"</div>", 
+    '<div class="footer">'
+    '© Logistics Intelligence •'
+    '<span style="color: #6366f1;"></span>'
+    '</div>', 
     unsafe_allow_html=True
 )
