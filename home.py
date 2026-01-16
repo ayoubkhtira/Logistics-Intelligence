@@ -326,7 +326,7 @@ html_header = f"""
     <div class="container">
         <div class="bg-anim"></div>
         <h1>Logistics Intelligence</h1>
-        <p>Optimisation Avancée des Opérations Logistiques</p>
+        
     </div>
 </body>
 </html>
