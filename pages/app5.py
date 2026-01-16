@@ -254,7 +254,7 @@ header_code = """
 <div class="main-header">
     <div class="content">
         <h1 class="header-title">CALCULATOR TRANSPORT</h1>
-        
+        <div class="status">Logistics Intelligence <span class="active-dot"></span></div>
     </div>
 </div>
 """
