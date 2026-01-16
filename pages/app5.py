@@ -6,306 +6,260 @@ from datetime import date
 import io
 import openpyxl
 import numpy as np
+import base64
 
 
-# Configuration
-st.set_page_config(page_title="Calculateur Transport", layout="wide")
+# Configuration sans sidebar
+st.set_page_config(
+    page_title="Calculateur Transport", 
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
+# Fonction pour encoder l'image en base64
+@st.cache_data
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
 
-# CSS Styling professionnel
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
-* { font-family: 'Inter', sans-serif; }
-body { background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%); color: #e2e8f0; }
-h1, h2, h3 { color: #f8fafc !important; font-family: 'Orbitron', monospace !important; text-shadow: 0 2px 10px rgba(102,126,234,0.5); }
-.main-header { padding: 3rem; background: linear-gradient(135deg, rgba(10,10,16,0.95), rgba(26,26,46,0.95)); backdrop-filter: blur(25px); border-radius: 24px; border-left: 8px solid #667eea; box-shadow: 0 30px 60px rgba(0,0,0,0.8); margin-bottom: 2rem; }
-.header-title { font-size: 3.2rem; font-weight: 700; letter-spacing: 6px; text-transform: uppercase; background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #667eea); background-size: 400% 400%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: gradientMove 5s ease infinite; text-align: center; }
-
-/* === ONGLETS PREMIUM - Style Box 3D === */
-.stTabs {
-    background: linear-gradient(145deg, rgba(15,15,35,0.9), rgba(26,26,46,0.9)) !important;
-    backdrop-filter: blur(25px) !important;
-    border-radius: 24px !important;
-    border: 2px solid rgba(102,126,234,0.4) !important;
-    box-shadow: 
-        0 25px 50px rgba(0,0,0,0.6),
-        inset 0 1px 0 rgba(255,255,255,0.1) !important;
-    padding: 4px !important;
-    margin: 1rem 0 !important;
-    overflow: hidden !important;
-}
-
-.stTabs [data-baseweb="tab-list"] {
-    gap: 4px !important;
-    padding: 8px !important;
-    border-radius: 20px !important;
-    background: rgba(255,255,255,0.02) !important;
-}
-
-.stTabs [data-baseweb="tab"] {
-    height: 60px !important;
-    background: linear-gradient(145deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08)) !important;
-    backdrop-filter: blur(20px) !important;
-    border: 2px solid rgba(102,126,234,0.2) !important;
-    border-radius: 20px !important;
-    padding: 0 24px !important;
-    font-family: 'Orbitron', monospace !important;
-    font-weight: 600 !important;
-    font-size: 14px !important;
-    color: #b8bed9 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1px !important;
-    white-space: nowrap !important;
-    transition: all 0.4s cubic-bezier(0.4,0,0.2,1) !important;
-    position: relative !important;
-    overflow: hidden !important;
-}
-
-.stTabs [data-baseweb="tab"]:hover {
-    background: linear-gradient(145deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2)) !important;
-    border-color: rgba(102,126,234,0.5) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 15px 30px rgba(102,126,234,0.3) !important;
-    color: #e2e8f0 !important;
-}
-
-.stTabs [aria-selected="true"] {
-    background: linear-gradient(145deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3)) !important;
-    border-color: #667eea !important;
-    color: #ffffff !important;
-    transform: translateY(-4px) !important;
-    box-shadow: 
-        0 20px 40px rgba(102,126,234,0.5),
-        0 0 30px rgba(102,126,234,0.3),
-        inset 0 1px 0 rgba(255,255,255,0.3) !important;
-}
-.stTabs [data-baseweb="tab-highlight"] {
-    background: transparent !important;
-    background-color: rgba(255,255,255,0) !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-            
-.stTabs [aria-selected="true"]::before {
-    content: '' !important;
-    position: absolute !important;
-    top: 0 !important;
-    left: -100% !important;
-    width: 100% !important;
-    height: 100% !important;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent) !important;
-    transition: left 0.6s !important;
-}
-
-.stTabs [aria-selected="true"]:hover::before {
-    left: 100% !important;
-}
-
-/* BOUTONS */
-.stButton > button { 
-    background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15)) !important; 
-    backdrop-filter: blur(20px) !important; 
-    border: 2px solid rgba(102,126,234,0.4) !important; 
-    border-radius: 20px !important; 
-    padding: 0.8rem 1.5rem !important; 
-    font-family: 'Orbitron', monospace !important; 
-    font-weight: 600 !important; 
-    color: #e2e8f0 !important; 
-    text-transform: uppercase !important; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important; 
-    transition: all 0.4s cubic-bezier(0.4,0,0.2,1) !important; 
-}
-.stButton > button:hover {
-    background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25)) !important;
-    box-shadow: 0 15px 35px rgba(102,126,234,0.4) !important;
-    transform: translateY(-2px) !important;
-}
-
-/* CARTES METRIC */
-.metric-card { 
-    background: linear-gradient(145deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2)) !important; 
-    backdrop-filter: blur(20px); 
-    color: white !important; 
-    padding: 2.5rem !important; 
-    border-radius: 24px !important; 
-    text-align: center !important; 
-    border: 2px solid rgba(255,255,255,0.2) !important; 
-    box-shadow: 0 25px 50px rgba(102,126,234,0.4) !important; 
-}
-.metric-value { font-size: 2.5rem !important; font-weight: 700 !important; color: #667eea !important; }
-.metric-label { font-size: 1rem !important; opacity: 0.9 !important; margin-top: 0.5rem !important; }
-
-/* SECTIONS INPUT */
-.input-section { 
-    background: rgba(255,255,255,0.05); 
-    padding: 2rem; 
-    border-radius: 20px; 
-    border: 1px solid rgba(102,126,234,0.3); 
-    margin: 1rem 0; 
-}
-
-/* EDIT ROW */
-.edit-row { 
-    background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)) !important; 
-    border-left: 4px solid #667eea !important; 
-}
-
-/* ANIMATIONS */
-@keyframes gradientMove { 
-    0%,100%{background-position:0% 50%} 
-    50%{background-position:100% 50%} 
-}
-
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    .stTabs [data-baseweb="tab"] {
-        height: 50px !important;
-        padding: 0 16px !important;
-        font-size: 12px !important;
-    }
-    .header-title { font-size: 2.2rem !important; }
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-
-# Header
-header_code = """
-<!DOCTYPE html>
-<html>
-<head>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
-<style>
-    * { font-family: 'Inter', sans-serif !important; }
-    body { 
-        margin: 0; 
-        padding: 0; 
-        background: transparent; 
-        overflow: hidden; 
-    }
-    .main-header {
-        position: relative; 
-        padding: 2.5rem; 
-        background: linear-gradient(135deg, rgba(10,10,16,0.95), rgba(26,26,46,0.95)) !important; 
+# CSS Styling professionnel avec background image
+def set_background_image(image_path):
+    # Encoder l'image
+    image_base64 = get_base64_of_bin_file(image_path)
+    
+    css = f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    /* Background avec image */
+    .stApp {{
+        background: linear-gradient(rgba(15, 15, 35, 0.85), rgba(26, 26, 46, 0.85)), 
+                    url("data:image/jpg;base64,{image_base64}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        min-height: 100vh;
+    }}
+    
+    /* Cacher la sidebar */
+    section[data-testid="stSidebar"] {{
+        display: none;
+    }}
+    
+    header[data-testid="stHeader"] {{
+        display: none;
+    }}
+    
+    /* Styles pour le contenu */
+    * {{ font-family: 'Inter', sans-serif; }}
+    h1, h2, h3 {{ 
+        color: #f8fafc !important; 
+        font-family: 'Orbitron', monospace !important; 
+        text-shadow: 0 2px 10px rgba(102,126,234,0.5); 
+    }}
+    
+    .main-header {{ 
+        padding: 3rem; 
+        background: linear-gradient(135deg, rgba(10,10,16,0.85), rgba(26,26,46,0.85)) !important; 
+        backdrop-filter: blur(25px); 
+        border-radius: 24px; 
+        border-left: 8px solid #667eea; 
+        box-shadow: 0 30px 60px rgba(0,0,0,0.8); 
+        margin-bottom: 2rem; 
+    }}
+    
+    .header-title {{ 
+        font-size: 3.2rem; 
+        font-weight: 700; 
+        letter-spacing: 6px; 
+        text-transform: uppercase; 
+        background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #667eea); 
+        background-size: 400% 400%; 
+        -webkit-background-clip: text; 
+        background-clip: text; 
+        -webkit-text-fill-color: transparent; 
+        animation: gradientMove 5s ease infinite; 
+        text-align: center; 
+    }}
+    
+    /* === ONGLETS PREMIUM - Style Box 3D === */
+    .stTabs {{
+        background: linear-gradient(145deg, rgba(15,15,35,0.9), rgba(26,26,46,0.9)) !important;
         backdrop-filter: blur(25px) !important;
         border-radius: 24px !important;
-        border-left: 12px solid #667eea !important; 
-        overflow: hidden; 
-        box-shadow: 0 30px 60px rgba(0,0,0,0.8) !important;
-        min-height: 160px; 
-        display: flex; 
-        flex-direction: column; 
-        justify-content: center;
-        margin-bottom: 2rem !important;
-    }
-    #bg-carousel {
-        position: absolute; 
-        top: 0; 
-        left: 0; 
-        width: 100%; 
-        height: 100%;
-        background-size: cover !important; 
-        background-position: center !important; 
-        opacity: 0.15 !important; 
-        transition: background-image 2s ease-in-out !important; 
-        z-index: 0;
-    }
-    .overlay {
-        position: absolute; 
-        top: 0; 
-        left: 0; 
-        width: 100%; 
-        height: 100%;
-        background: linear-gradient(rgba(102,126,234,0.1) 0%, rgba(26,26,46,0.8) 100%) !important;
-        z-index: 1; 
-        pointer-events: none;
-    }
-    .content { 
-        position: relative; 
-        z-index: 2; 
-        text-align: center;
-    }
-    .header-title { 
-        font-family: 'Orbitron', monospace !important; 
-        text-transform: uppercase; 
-        letter-spacing: 6px; 
-        font-size: 3.2rem !important; 
-        font-weight: 700 !important;
-        margin: 0; 
-        background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #667eea) !important;
-        background-size: 400% 400% !important;
-        -webkit-background-clip: text !important;
-        background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
-        animation: gradientMove 5s ease infinite !important;
-        text-shadow: 0 2px 10px rgba(102,126,234,0.5) !important;
-    }
-    .status { 
-        color: #667eea !important; 
-        font-weight: 600 !important; 
-        letter-spacing: 3px !important; 
-        font-size: 1rem !important; 
-        text-transform: uppercase !important; 
-        margin-top: 12px !important;
+        border: 2px solid rgba(102,126,234,0.4) !important;
+        box-shadow: 
+            0 25px 50px rgba(0,0,0,0.6),
+            inset 0 1px 0 rgba(255,255,255,0.1) !important;
+        padding: 4px !important;
+        margin: 1rem 0 !important;
+        overflow: hidden !important;
+    }}
+    
+    .stTabs [data-baseweb="tab-list"] {{
+        gap: 4px !important;
+        padding: 8px !important;
+        border-radius: 20px !important;
+        background: rgba(255,255,255,0.02) !important;
+    }}
+    
+    .stTabs [data-baseweb="tab"] {{
+        height: 60px !important;
+        background: linear-gradient(145deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08)) !important;
+        backdrop-filter: blur(20px) !important;
+        border: 2px solid rgba(102,126,234,0.2) !important;
+        border-radius: 20px !important;
+        padding: 0 24px !important;
         font-family: 'Orbitron', monospace !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        color: #b8bed9 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        white-space: nowrap !important;
+        transition: all 0.4s cubic-bezier(0.4,0,0.2,1) !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }}
+    
+    .stTabs [data-baseweb="tab"]:hover {{
+        background: linear-gradient(145deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2)) !important;
+        border-color: rgba(102,126,234,0.5) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 15px 30px rgba(102,126,234,0.3) !important;
+        color: #e2e8f0 !important;
+    }}
+    
+    .stTabs [aria-selected="true"] {{
+        background: linear-gradient(145deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3)) !important;
+        border-color: #667eea !important;
+        color: #ffffff !important;
+        transform: translateY(-4px) !important;
+        box-shadow: 
+            0 20px 40px rgba(102,126,234,0.5),
+            0 0 30px rgba(102,126,234,0.3),
+            inset 0 1px 0 rgba(255,255,255,0.3) !important;
+    }}
+    
+    .stTabs [data-baseweb="tab-highlight"] {{
+        background: transparent !important;
+        background-color: rgba(255,255,255,0) !important;
+        border: none !important;
+        box-shadow: none !important;
+    }}
+                
+    .stTabs [aria-selected="true"]::before {{
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: -100% !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent) !important;
+        transition: left 0.6s !important;
+    }}
+    
+    .stTabs [aria-selected="true"]:hover::before {{
+        left: 100% !important;
+    }}
+    
+    /* BOUTONS */
+    .stButton > button {{ 
+        background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15)) !important; 
+        backdrop-filter: blur(20px) !important; 
+        border: 2px solid rgba(102,126,234,0.4) !important; 
+        border-radius: 20px !important; 
+        padding: 0.8rem 1.5rem !important; 
+        font-family: 'Orbitron', monospace !important; 
+        font-weight: 600 !important; 
+        color: #e2e8f0 !important; 
+        text-transform: uppercase !important; 
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important; 
+        transition: all 0.4s cubic-bezier(0.4,0,0.2,1) !important; 
+    }}
+    
+    .stButton > button:hover {{
+        background: linear-gradient(135deg, rgba(102,126,234,0.25), rgba(118,75,162,0.25)) !important;
+        box-shadow: 0 15px 35px rgba(102,126,234,0.4) !important;
+        transform: translateY(-2px) !important;
+    }}
+    
+    /* CARTES METRIC */
+    .metric-card {{ 
+        background: linear-gradient(145deg, rgba(102,126,234,0.2), rgba(118,75,162,0.2)) !important; 
+        backdrop-filter: blur(20px); 
+        color: white !important; 
+        padding: 2.5rem !important; 
+        border-radius: 24px !important; 
+        text-align: center !important; 
+        border: 2px solid rgba(255,255,255,0.2) !important; 
+        box-shadow: 0 25px 50px rgba(102,126,234,0.4) !important; 
+    }}
+    
+    .metric-value {{ font-size: 2.5rem !important; font-weight: 700 !important; color: #667eea !important; }}
+    .metric-label {{ font-size: 1rem !important; opacity: 0.9 !important; margin-top: 0.5rem !important; }}
+    
+    /* SECTIONS INPUT */
+    .input-section {{ 
+        background: rgba(255,255,255,0.05); 
+        padding: 2rem; 
+        border-radius: 20px; 
+        border: 1px solid rgba(102,126,234,0.3); 
+        margin: 1rem 0; 
+    }}
+    
+    /* EDIT ROW */
+    .edit-row {{ 
+        background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)) !important; 
+        border-left: 4px solid #667eea !important; 
+    }}
+    
+    /* ANIMATIONS */
+    @keyframes gradientMove {{ 
+        0%,100%{{background-position:0% 50%}} 
+        50%{{background-position:100% 50%}} 
+    }}
+    
+    /* RESPONSIVE */
+    @media (max-width: 768px) {{
+        .stTabs [data-baseweb="tab"] {{
+            height: 50px !important;
+            padding: 0 16px !important;
+            font-size: 12px !important;
+        }}
+        .header-title {{ font-size: 2.2rem !important; }}
+    }}
+    </style>
+    """
+    return css
+
+# Appliquer le CSS avec l'image de fond
+try:
+    st.markdown(set_background_image("images/img1.jpg"), unsafe_allow_html=True)
+except FileNotFoundError:
+    # Fallback si l'image n'est pas trouvée
+    st.markdown("""
+    <style>
+    .stApp {
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%) !important;
     }
-    @keyframes gradientMove { 
-        0%,100%{background-position:0% 50%} 
-        50%{background-position:100% 50%} 
-    }
-    @keyframes blink { 
-        0% { opacity: 1; } 
-        50% { opacity: 0.3; } 
-        100% { opacity: 1; } 
-    }
-    .active-dot { 
-        display: inline-block; 
-        width: 14px; 
-        height: 14px; 
-        background: #667eea !important; 
-        border-radius: 50%; 
-        margin-left: 12px; 
-        animation: blink 2s infinite !important; 
-        box-shadow: 0 0 12px #667eea !important;
-    }
-</style>
-</head>
-<body>
-    <div class="main-header">
-        <div id="bg-carousel"></div>
-        <div class="overlay"></div>
-        <div class="content">
-            <h1>CALCULATOR TRANSPORT</h1>
-            <div class="status">Logistics Intelligence <span class="active-dot"></span></div>
-        </div>
+    </style>
+    """, unsafe_allow_html=True)
+    st.warning("Image de fond non trouvée. Utilisation du fond par défaut.")
+
+# Header simplifié sans carrousel
+header_code = """
+<div class="main-header">
+    <div class="content">
+        <h1 class="header-title">CALCULATOR TRANSPORT</h1>
+        <div class="status">Logistics Intelligence</div>
     </div>
-    <script>
-        const images = [
-            "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1567808291548-fc3ee04dbcf0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80", 
-            "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1581092160607-a458d3227616?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-            "https://images.unsplash.com/photo-1571164324422-6d668a8b4132?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
-        ];
-        let index = 0;
-        const bgDiv = document.getElementById('bg-carousel');
-        function changeBackground() {
-            bgDiv.style.backgroundImage = `url(${images[index]})`;
-            index = (index + 1) % images.length;
-        }
-        changeBackground();
-        setInterval(changeBackground, 4000);
-    </script>
-</body>
-</html>
+</div>
 """
 
 st.markdown(header_code, unsafe_allow_html=True)
-
-
-
 
 # Initialisation Session State
 if 'config' not in st.session_state:
@@ -330,15 +284,11 @@ if 'config' not in st.session_state:
     st.session_state.history = []
     st.session_state.results = None
 
-
 if 'active_tab' not in st.session_state:
     st.session_state.active_tab = 0
 
-
-
 def convert_to_base(amount, source_devise, config):
     return amount * config["taux_change"][source_devise] / config["taux_change"][config["devise_base"]]
-
 
 def calculate_all_costs(config, shipment):
     results = {}
@@ -392,7 +342,6 @@ def calculate_all_costs(config, shipment):
     
     return results
 
-
 # Interface 7 onglets sans emojis
 tabs = st.tabs([
     "Calcul", "Routes", "Frais Perso", "Devises", "Taxes", "Resultats", "Legende"
@@ -405,9 +354,6 @@ if 'active_tab' in st.session_state:
         tabs[st.session_state.active_tab].display()
     except:
         pass  # Ignore si erreur
-
-
-
 
 with tab1:
     st.markdown("### **Calcul Express**")
@@ -429,7 +375,6 @@ with tab1:
         })
         st.session_state.active_tab = 5  # Resultats = index 5 (0,1,2,3,4,5,6)
         st.rerun()
-
 
 with tab2:
     st.markdown("### **Routes**")
@@ -465,7 +410,6 @@ with tab2:
             }
             st.success(f"**{route_key}** creee!")
             st.rerun()
-
 
 with tab3:
     st.markdown("### **Frais Personnalises**")
@@ -503,7 +447,6 @@ with tab3:
             for f in suppr: del frais_data[f]
             st.rerun()
 
-
 with tab4:
     st.markdown("### **Devises**")
     st.session_state.config["devise_base"] = st.selectbox("**Devise Base**", ["MAD", "CHF", "EUR", "USD"], key="select_devise_base")
@@ -518,8 +461,6 @@ with tab4:
     for idx, row in edited.iterrows():
         st.session_state.config["taux_change"][row["Devise"]] = float(row["Taux"])
 
-
-
 with tab5:
     st.markdown("### **Taxes**")
     col1, col2 = st.columns(2)
@@ -529,7 +470,6 @@ with tab5:
     with col2:
         tva = st.number_input("**TVA %**", value=st.session_state.config["Taxes"]["TVA"]*100, step=1.0, key="input_tva")
         st.session_state.config["Taxes"]["TVA"] = tva/100
-
 
 with tab6:
     if st.session_state.results:
@@ -544,17 +484,13 @@ with tab6:
         with col4:
             st.markdown(f'<div class="metric-card"><div class="metric-value">{st.session_state.results["GRAND TOTAL"]:,.0f}</div><div class="metric-label">TOTAL {st.session_state.config["devise_base"]}</div></div>', unsafe_allow_html=True)
         
-        # ========================================
         # Editeur complet des resultats
-        # ========================================
         st.markdown("### **Modifier les Frais**")
         
-        # Recuperer la route actuelle
         route_actuelle = st.session_state.shipment["route"]
         route_data = st.session_state.config["routes"][route_actuelle]
         devise_route = route_data["devise"]
         
-        # Fonctions de conversion
         def convert_to_base(amount, source_devise, config):
             return amount * config["taux_change"][source_devise] / config["taux_change"][config["devise_base"]]
         
@@ -592,16 +528,13 @@ with tab6:
         with col_main2:
             st.markdown("")
             
-            # Bouton unique pour sauvegarder les modifications
             if st.button("**Sauvegarder les frais**", key="btn_save_frais_fixes", use_container_width=True):
                 for idx, row in edited_main.iterrows():
                     categorie = row["Categorie"]
                     nouveau_montant = float(row["Montant"])
                     
-                    # Ne modifier que les lignes editables
                     if row["Editable"] == "Oui":
                         if categorie == "Frais Départ":
-                            # Convertir le nouveau montant en MAD
                             nouveau_montant_MAD = convert_from_base(nouveau_montant, "MAD", st.session_state.config)
                             total_actuel_MAD = sum(route_data["FraisMaroc"].values())
                             if total_actuel_MAD > 0:
@@ -610,7 +543,6 @@ with tab6:
                                     route_data["FraisMaroc"][k] = route_data["FraisMaroc"][k] * ratio
                         
                         elif categorie == "Frais Arrivée":
-                            # Convertir le nouveau montant en devise de route
                             nouveau_montant_devise = convert_from_base(nouveau_montant, devise_route, st.session_state.config)
                             total_actuel_devise = sum(route_data["FraisArrivee"].values())
                             if total_actuel_devise > 0:
@@ -619,9 +551,7 @@ with tab6:
                                     route_data["FraisArrivee"][k] = route_data["FraisArrivee"][k] * ratio
                         
                         elif categorie == "Fret Maritime":
-                            # Recalculer le fret de base
                             if st.session_state.shipment["nb_up"] > 0:
-                                # Convertir en devise de route
                                 nouveau_montant_devise = convert_from_base(nouveau_montant, devise_route, st.session_state.config)
                                 fret_data = route_data["FretMaritime"]
                                 total_coeff = (1 + fret_data["BAF"] + fret_data["CAF"] - 
@@ -633,9 +563,7 @@ with tab6:
                                     route_data["FretMaritime"]["Fret"] = 0
                         
                         elif categorie == "Fret Routier":
-                            # Gerer le cas ou l'utilisateur met 0
                             if nouveau_montant == 0:
-                                # Forcer tous les parametres a 0 pour avoir un resultat de 0
                                 route_data["FretRoutier"]["Fret"] = 0
                                 route_data["FretRoutier"]["CAF"] = 0
                                 route_data["FretRoutier"]["Rabais"] = 0
@@ -643,35 +571,27 @@ with tab6:
                                 route_data["FretRoutier"]["Ristourne"] = 0
                                 route_data["FretRoutier"]["Assurance"] = 0
                             else:
-                                # Calcul normal avec coefficients
                                 if st.session_state.shipment["nb_up"] > 0:
-                                    # Convertir en devise de route
                                     nouveau_montant_devise = convert_from_base(nouveau_montant, devise_route, st.session_state.config)
                                     fret_data = route_data["FretRoutier"]
                                     
-                                    # Calculer le coefficient total
                                     total_coeff = (1 + fret_data["CAF"] - fret_data["Rabais"] - 
                                                  fret_data["Remise"] - fret_data["Ristourne"])
                                     
                                     if total_coeff > 0:
-                                        # Calculer la partie assurance
                                         assurance_montant = st.session_state.shipment["valeur_cip"] * fret_data.get("Assurance", 0)
                                         assurance_devise = convert_to_base(assurance_montant, devise_route, st.session_state.config)
                                         
-                                        # Calculer le montant restant pour le fret (sans assurance)
                                         montant_fret_sans_assurance = nouveau_montant_devise - assurance_devise
                                         
                                         if montant_fret_sans_assurance > 0:
-                                            # Calculer le nouveau Fret de base
                                             nouveau_fret_base = montant_fret_sans_assurance / (st.session_state.shipment["nb_up"] * total_coeff)
                                             route_data["FretRoutier"]["Fret"] = max(0, nouveau_fret_base)
                                         else:
-                                            # Si le montant sans assurance est negatif ou 0, mettre le fret a 0
                                             route_data["FretRoutier"]["Fret"] = 0
                                     else:
                                         route_data["FretRoutier"]["Fret"] = 0
                 
-                # Recalculer TOUS les resultats
                 st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
                 st.success("Frais mis a jour et recalcules!")
                 st.rerun()
@@ -684,7 +604,6 @@ with tab6:
             
             frais_list = []
             for nom, data in frais_perso.items():
-                # Trouver le montant dans les resultats
                 key_perso = f"Frais Perso: {nom}"
                 montant_result = st.session_state.results.get(key_perso, 0)
                 
@@ -716,16 +635,13 @@ with tab6:
                 if st.button("**Sauvegarder Perso**", key=f"btn_save_perso_res_{route_actuelle}", use_container_width=True):
                     for idx, row in edited_frais.iterrows():
                         nom = row["Nom"]
-                        # Mettre a jour le montant de base
                         frais_perso[nom]["montant"] = float(row["Montant Base"])
                         frais_perso[nom]["pourcentage_cip"] = float(row["% CIP"]) / 100
                     
-                    # Recalculer avec les nouveaux parametres
                     st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
                     st.success("Frais personnalises sauvegardes et recalcules!")
                     st.rerun()
                 
-                # Selection pour suppression
                 noms_frais = [row["Nom"] for _, row in edited_frais.iterrows()]
                 suppr_frais = st.multiselect("Supprimer", noms_frais, key=f"suppr_perso_res_{route_actuelle}")
                 if st.button("**Supprimer**", key=f"btn_del_perso_res_{route_actuelle}", use_container_width=True) and suppr_frais:
@@ -739,7 +655,6 @@ with tab6:
         st.markdown("---")
         st.markdown("### **Recapitulatif Final**")
         
-        # Creer un DataFrame avec toutes les categories
         categories = []
         montants = []
         
@@ -771,7 +686,6 @@ with tab6:
         # Export Excel
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            # Feuille resultats detailles
             df_detailed = pd.DataFrame({
                 "Categorie": categories,
                 "Montant": montants,
@@ -779,16 +693,13 @@ with tab6:
             })
             df_detailed.to_excel(writer, sheet_name='Resultats', index=False)
             
-            # Feuille parametres d'envoi
             df_shipment = pd.DataFrame([st.session_state.shipment])
             df_shipment.to_excel(writer, sheet_name='Envoi', index=False)
             
-            # Feuille historique
             if st.session_state.history:
                 df_history = pd.DataFrame(st.session_state.history)
                 df_history.to_excel(writer, sheet_name='Historique', index=False)
             
-            # Feuille configuration route
             df_route = pd.DataFrame({
                 "Parametre": list(route_data.keys()),
                 "Valeur": [str(v) for v in route_data.values()]
@@ -802,14 +713,13 @@ with tab6:
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
     
-    # Si pas de resultats, afficher un message
     else:
         st.info("**Aucun resultat a afficher. Veuillez effectuer un calcul dans l'onglet 'Calcul'.**")
         
-        # Bouton pour aller directement a l'onglet Calcul
         if st.button("**Aller au Calcul**", use_container_width=True):
-            st.session_state.active_tab = 0  # Index de l'onglet Calcul
+            st.session_state.active_tab = 0
             st.rerun()
+
 with tab7:
     st.markdown("### **LEGENDE & AIDE**")
     st.markdown("""
@@ -846,21 +756,17 @@ st.markdown("""
 TOKEN = st.secrets.get("TELEGRAM_TOKEN", "TON_TOKEN_BOT_TELEGRAM") 
 CHAT_ID = st.secrets.get("TELEGRAM_CHAT_ID", "")
 
-
 with st.form("feedback_form", clear_on_submit=True):
-    # BOX 100% LARGEUR - MEME LONGUEUR
     name = st.text_input("**Nom / Entreprise**", 
                         placeholder="Votre nom",
                         help="Optionnel",
                         label_visibility="collapsed")
     
-    # BOX 100% LARGEUR - MEME LONGUEUR  
     msg = st.text_area("**Votre commentaire ou suggestion**", 
                       placeholder="Votre commentaire ou suggestion",
                       height=100,
                       label_visibility="collapsed")
     
-    # BOUTON 100% LARGEUR
     submitted = st.form_submit_button("**ENVOYER L'AVIS**", use_container_width=True)
 
 if submitted and msg.strip():
