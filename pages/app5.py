@@ -9,7 +9,7 @@ import numpy as np
 
 
 # Configuration
-st.set_page_config(page_title="Calculateur Transport", page_icon="🚚", layout="wide")
+st.set_page_config(page_title="Calculateur Transport", layout="wide")
 
 
 # CSS Styling professionnel
@@ -277,7 +277,7 @@ header_code = """
         <div id="bg-carousel"></div>
         <div class="overlay"></div>
         <div class="content">
-            <h1>CALCULATOR TRANSPORT<span style="color:#FF0000;"></span></h1>
+            <h1>CALCULATOR TRANSPORT</h1>
             <div class="status">Logistics Intelligence <span class="active-dot"></span></div>
         </div>
     </div>
@@ -393,9 +393,9 @@ def calculate_all_costs(config, shipment):
     return results
 
 
-# Interface 7 onglets ✅ AUCUN KEY SUR METRIC
+# Interface 7 onglets sans emojis
 tabs = st.tabs([
-    "📦 Calcul", "🗺️ Routes", "💰 Frais Perso", "💱 Devises", "⚙️ Taxes", "📊 Résultats", "📋 Légende"
+    "Calcul", "Routes", "Frais Perso", "Devises", "Taxes", "Resultats", "Legende"
 ])
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = tabs
 
@@ -410,7 +410,7 @@ if 'active_tab' in st.session_state:
 
 
 with tab1:
-    st.markdown("### 🚀 **Calcul Express**")
+    st.markdown("### **Calcul Express**")
     col1, col2 = st.columns(2)
     with col1:
         st.session_state.shipment["nb_up"] = st.number_input("**UP**", value=1.0, min_value=0.0, step=0.1, format="%.1f", key="input_up")
@@ -420,38 +420,38 @@ with tab1:
         st.session_state.shipment["valeur_cip"] = st.number_input("**Valeur CIP**", value=1000.0, min_value=0.0, step=100.0, format="%.0f", key="input_cip")
         st.session_state.shipment["route"] = st.selectbox("**Route**", list(st.session_state.config["routes"].keys()), key="select_route_calc")
     
-    if st.button("🧮 **CALCULER TOUT**", use_container_width=True):
+    if st.button("**CALCULER TOUT**", use_container_width=True):
         st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
         st.session_state.history.append({
             "date": date.today().strftime("%Y-%m-%d %H:%M"), 
             "route": st.session_state.shipment["route"], 
             "total": st.session_state.results["GRAND TOTAL"]
         })
-        st.session_state.active_tab = 5  # 📊 Résultats = index 5 (0,1,2,3,4,5,6)
+        st.session_state.active_tab = 5  # Resultats = index 5 (0,1,2,3,4,5,6)
         st.rerun()
 
 
 with tab2:
-    st.markdown("### 🗺️ **Routes**")
+    st.markdown("### **Routes**")
     col1, col2 = st.columns(2)
     with col1:
-        new_depart = st.text_input("**Ville départ**", key="input_ville_depart")
-        if st.button("➕ Départ", key="btn_add_depart") and new_depart:
+        new_depart = st.text_input("**Ville depart**", key="input_ville_depart")
+        if st.button("Ajouter Depart", key="btn_add_depart") and new_depart:
             if new_depart not in st.session_state.config["villes_depart"]:
                 st.session_state.config["villes_depart"].append(new_depart)
-                st.success(f"✅ {new_depart} ajoutée!")
+                st.success(f"{new_depart} ajoutee!")
                 st.rerun()
     with col2:
-        new_arrivee = st.text_input("**Ville arrivée**", key="input_ville_arrivee")
-        if st.button("➕ Arrivée", key="btn_add_arrivee") and new_arrivee:
+        new_arrivee = st.text_input("**Ville arrivee**", key="input_ville_arrivee")
+        if st.button("Ajouter Arrivee", key="btn_add_arrivee") and new_arrivee:
             if new_arrivee not in st.session_state.config["villes_arrivee"]:
                 st.session_state.config["villes_arrivee"].append(new_arrivee)
-                st.success(f"✅ {new_arrivee} ajoutée!")
+                st.success(f"{new_arrivee} ajoutee!")
                 st.rerun()
     
-    ville_d = st.selectbox("Départ", st.session_state.config["villes_depart"], key="select_ville_d")
-    ville_a = st.selectbox("Arrivée", st.session_state.config["villes_arrivee"], key="select_ville_a")
-    if st.button(f"✨ **Créer {ville_d}-{ville_a}**", key="btn_create_route"):
+    ville_d = st.selectbox("Depart", st.session_state.config["villes_depart"], key="select_ville_d")
+    ville_a = st.selectbox("Arrivee", st.session_state.config["villes_arrivee"], key="select_ville_a")
+    if st.button(f"**Creer {ville_d}-{ville_a}**", key="btn_create_route"):
         route_key = f"{ville_d}-{ville_a}"
         if route_key not in st.session_state.config["routes"]:
             default = list(st.session_state.config["routes"].values())[0]
@@ -463,12 +463,12 @@ with tab2:
                 "FraisPersonnalises": {},
                 "devise": "CHF"
             }
-            st.success(f"✅ **{route_key}** créée!")
+            st.success(f"**{route_key}** creee!")
             st.rerun()
 
 
 with tab3:
-    st.markdown("### 💰 **Frais Personnalisés** ⭐")
+    st.markdown("### **Frais Personnalises**")
     route = st.selectbox("**Route**", list(st.session_state.config["routes"].keys()), key="select_route_frais")
     frais_data = st.session_state.config["routes"][route]["FraisPersonnalises"]
     
@@ -477,39 +477,39 @@ with tab3:
     with col2: montant = st.number_input("**Montant**", value=0.0, step=10.0, key=f"input_mont_{route}")
     with col3: 
         devise = st.selectbox("**Devise**", list(st.session_state.config["taux_change"].keys()), key=f"select_devise_{route}")
-        unite = st.selectbox("**Unité**", ["UP", "palette", "conteneur", "general"], key=f"select_unite_{route}")
+        unite = st.selectbox("**Unite**", ["UP", "palette", "conteneur", "general"], key=f"select_unite_{route}")
     with col4: pct_cip = st.number_input("**% CIP**", value=0.0, step=0.01, format="%.2f", key=f"input_pct_{route}")
     
-    if st.button("➕ **AJOUTER**", use_container_width=True, key=f"btn_ajout_frais_{route}") and nom:
+    if st.button("**AJOUTER**", use_container_width=True, key=f"btn_ajout_frais_{route}") and nom:
         frais_data[nom] = {
             "montant": float(montant), 
             "devise": devise, 
             "unite": unite,
             "pourcentage_cip": float(pct_cip)
         }
-        st.success(f"✅ **{nom}** ({unite}) ajouté!")
+        st.success(f"**{nom}** ({unite}) ajoute!")
         st.rerun()
     
     if frais_data:
-        st.markdown("### 📋 **Frais de cette route**")
+        st.markdown("### **Frais de cette route**")
         df_frais = pd.DataFrame([{
-            "Nom": k, "Montant": f"{v['montant']:.0f}", "Unité": v["unite"],
+            "Nom": k, "Montant": f"{v['montant']:.0f}", "Unite": v["unite"],
             "Devise": v["devise"], "%CIP": f"{v['pourcentage_cip']*100:.1f}%"
         } for k, v in frais_data.items()])
         st.dataframe(df_frais, use_container_width=True)
         
-        suppr = st.multiselect("🗑️ Supprimer", list(frais_data.keys()), key=f"multiselect_suppr_{route}")
+        suppr = st.multiselect("Supprimer", list(frais_data.keys()), key=f"multiselect_suppr_{route}")
         if st.button("Supprimer", key=f"btn_suppr_{route}") and suppr:
             for f in suppr: del frais_data[f]
             st.rerun()
 
 
 with tab4:
-    st.markdown("### 💱 **Devises**")
+    st.markdown("### **Devises**")
     st.session_state.config["devise_base"] = st.selectbox("**Devise Base**", ["MAD", "CHF", "EUR", "USD"], key="select_devise_base")
     
     new_devise = st.text_input("**Nouvelle devise**", key="input_new_devise")
-    if st.button("➕ Ajouter", key="btn_add_devise") and new_devise:
+    if st.button("Ajouter", key="btn_add_devise") and new_devise:
         st.session_state.config["taux_change"][new_devise] = 1.0
         st.rerun()
     
@@ -521,7 +521,7 @@ with tab4:
 
 
 with tab5:
-    st.markdown("### ⚙️ **Taxes**")
+    st.markdown("### **Taxes**")
     col1, col2 = st.columns(2)
     with col1:
         dd = st.number_input("**Douane %**", value=st.session_state.config["Taxes"]["DroitsDouane"]*100, step=1.0, key="input_douane")
@@ -533,23 +533,23 @@ with tab5:
 
 with tab6:
     if st.session_state.results:
-        st.markdown("### 💎 **RÉSULTATS**")
+        st.markdown("### **RESULTATS**")
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            st.markdown(f'<div class="metric-card"><div class="metric-value">{st.session_state.shipment["nb_up"]:.1f}</div><div class="metric-label">📦 UP</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card"><div class="metric-value">{st.session_state.shipment["nb_up"]:.1f}</div><div class="metric-label">UP</div></div>', unsafe_allow_html=True)
         with col2:
-            st.markdown(f'<div class="metric-card"><div class="metric-value">{st.session_state.shipment["nb_palettes"]:.0f}</div><div class="metric-label">📋 Palettes</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card"><div class="metric-value">{st.session_state.shipment["nb_palettes"]:.0f}</div><div class="metric-label">Palettes</div></div>', unsafe_allow_html=True)
         with col3:
-            st.markdown(f'<div class="metric-card"><div class="metric-value">{st.session_state.shipment["nb_conteneurs"]:.0f}</div><div class="metric-label">📦 Conteneurs</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card"><div class="metric-value">{st.session_state.shipment["nb_conteneurs"]:.0f}</div><div class="metric-label">Conteneurs</div></div>', unsafe_allow_html=True)
         with col4:
-            st.markdown(f'<div class="metric-card"><div class="metric-value">{st.session_state.results["GRAND TOTAL"]:,.0f}</div><div class="metric-label">💎 TOTAL {st.session_state.config["devise_base"]}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="metric-card"><div class="metric-value">{st.session_state.results["GRAND TOTAL"]:,.0f}</div><div class="metric-label">TOTAL {st.session_state.config["devise_base"]}</div></div>', unsafe_allow_html=True)
         
         # ========================================
-        # 🔧 ÉDITEUR COMPLET DES RÉSULTATS ✅ CORRIGÉ
+        # Editeur complet des resultats
         # ========================================
-        st.markdown("### 🔧 **Modifier les Frais**")
+        st.markdown("### **Modifier les Frais**")
         
-        # Récupérer la route actuelle
+        # Recuperer la route actuelle
         route_actuelle = st.session_state.shipment["route"]
         route_data = st.session_state.config["routes"][route_actuelle]
         devise_route = route_data["devise"]
@@ -561,15 +561,15 @@ with tab6:
         def convert_from_base(amount, target_devise, config):
             return amount * config["taux_change"][config["devise_base"]] / config["taux_change"][target_devise]
         
-        # Préparer les données pour l'éditeur principal
+        # Preparer les donnees pour l'editeur principal
         data_editor = []
         for categorie, montant in st.session_state.results.items():
             if "Frais Perso:" in categorie:
                 continue
             elif categorie in ["Total Frais Personnalisés", "Droits Douane", "TVA", "GRAND TOTAL"]:
-                data_editor.append({"Catégorie": categorie, "Montant": float(montant), "Editable": "❌ Non"})
+                data_editor.append({"Categorie": categorie, "Montant": float(montant), "Editable": "Non"})
             else:
-                data_editor.append({"Catégorie": categorie, "Montant": float(montant), "Editable": "✅ Oui"})
+                data_editor.append({"Categorie": categorie, "Montant": float(montant), "Editable": "Oui"})
         
         df_main = pd.DataFrame(data_editor)
         
@@ -593,13 +593,13 @@ with tab6:
             st.markdown("")
             
             # Bouton unique pour sauvegarder les modifications
-            if st.button("💾 **Sauvegarder les frais**", key="btn_save_frais_fixes", use_container_width=True):
+            if st.button("**Sauvegarder les frais**", key="btn_save_frais_fixes", use_container_width=True):
                 for idx, row in edited_main.iterrows():
-                    categorie = row["Catégorie"]
+                    categorie = row["Categorie"]
                     nouveau_montant = float(row["Montant"])
                     
-                    # Ne modifier que les lignes éditables
-                    if row["Editable"] == "✅ Oui":
+                    # Ne modifier que les lignes editables
+                    if row["Editable"] == "Oui":
                         if categorie == "Frais Départ":
                             # Convertir le nouveau montant en MAD
                             nouveau_montant_MAD = convert_from_base(nouveau_montant, "MAD", st.session_state.config)
@@ -633,9 +633,9 @@ with tab6:
                                     route_data["FretMaritime"]["Fret"] = 0
                         
                         elif categorie == "Fret Routier":
-                            # Gérer le cas où l'utilisateur met 0
+                            # Gerer le cas ou l'utilisateur met 0
                             if nouveau_montant == 0:
-                                # Forcer tous les paramètres à 0 pour avoir un résultat de 0
+                                # Forcer tous les parametres a 0 pour avoir un resultat de 0
                                 route_data["FretRoutier"]["Fret"] = 0
                                 route_data["FretRoutier"]["CAF"] = 0
                                 route_data["FretRoutier"]["Rabais"] = 0
@@ -666,34 +666,34 @@ with tab6:
                                             nouveau_fret_base = montant_fret_sans_assurance / (st.session_state.shipment["nb_up"] * total_coeff)
                                             route_data["FretRoutier"]["Fret"] = max(0, nouveau_fret_base)
                                         else:
-                                            # Si le montant sans assurance est négatif ou 0, mettre le fret à 0
+                                            # Si le montant sans assurance est negatif ou 0, mettre le fret a 0
                                             route_data["FretRoutier"]["Fret"] = 0
                                     else:
                                         route_data["FretRoutier"]["Fret"] = 0
                 
-                # Recalculer TOUS les résultats
+                # Recalculer TOUS les resultats
                 st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
-                st.success("✅ Frais mis à jour et recalculés!")
+                st.success("Frais mis a jour et recalcules!")
                 st.rerun()
         
-        # Section Frais Personnalisés
+        # Section Frais Personnalises
         frais_perso = route_data["FraisPersonnalises"]
         if frais_perso:
             st.markdown("---")
-            st.markdown("### ✨ **Frais Personnalisés**")
+            st.markdown("### **Frais Personnalises**")
             
             frais_list = []
             for nom, data in frais_perso.items():
-                # Trouver le montant dans les résultats
+                # Trouver le montant dans les resultats
                 key_perso = f"Frais Perso: {nom}"
                 montant_result = st.session_state.results.get(key_perso, 0)
                 
                 frais_list.append({
                     "Nom": nom,
                     "Montant Base": float(data["montant"]),
-                    "Montant Calculé": float(montant_result),
+                    "Montant Calcule": float(montant_result),
                     "Devise": data["devise"],
-                    "Unité": data["unite"],
+                    "Unite": data["unite"],
                     "% CIP": float(data.get("pourcentage_cip", 0)) * 100
                 })
             
@@ -705,7 +705,7 @@ with tab6:
                     df_frais,
                     column_config={
                         "Montant Base": st.column_config.NumberColumn(format="%.2f"),
-                        "Montant Calculé": st.column_config.NumberColumn(format="%.2f"),
+                        "Montant Calcule": st.column_config.NumberColumn(format="%.2f"),
                         "% CIP": st.column_config.NumberColumn(format="%.2f")
                     },
                     use_container_width=True,
@@ -713,33 +713,33 @@ with tab6:
                 )
             
             with col_frais2:
-                if st.button("💾 **Sauvegarder Perso**", key=f"btn_save_perso_res_{route_actuelle}", use_container_width=True):
+                if st.button("**Sauvegarder Perso**", key=f"btn_save_perso_res_{route_actuelle}", use_container_width=True):
                     for idx, row in edited_frais.iterrows():
                         nom = row["Nom"]
-                        # Mettre à jour le montant de base
+                        # Mettre a jour le montant de base
                         frais_perso[nom]["montant"] = float(row["Montant Base"])
                         frais_perso[nom]["pourcentage_cip"] = float(row["% CIP"]) / 100
                     
-                    # Recalculer avec les nouveaux paramètres
+                    # Recalculer avec les nouveaux parametres
                     st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
-                    st.success("✅ Frais personnalisés sauvegardés et recalculés!")
+                    st.success("Frais personnalises sauvegardes et recalcules!")
                     st.rerun()
                 
-                # Sélection pour suppression
+                # Selection pour suppression
                 noms_frais = [row["Nom"] for _, row in edited_frais.iterrows()]
-                suppr_frais = st.multiselect("🗑️ Supprimer", noms_frais, key=f"suppr_perso_res_{route_actuelle}")
-                if st.button("🗑️ **Supprimer**", key=f"btn_del_perso_res_{route_actuelle}", use_container_width=True) and suppr_frais:
+                suppr_frais = st.multiselect("Supprimer", noms_frais, key=f"suppr_perso_res_{route_actuelle}")
+                if st.button("**Supprimer**", key=f"btn_del_perso_res_{route_actuelle}", use_container_width=True) and suppr_frais:
                     for nom in suppr_frais:
                         del frais_perso[nom]
                     st.session_state.results = calculate_all_costs(st.session_state.config, st.session_state.shipment)
-                    st.success(f"✅ {len(suppr_frais)} frais supprimés et recalculés!")
+                    st.success(f"{len(suppr_frais)} frais supprimes et recalcules!")
                     st.rerun()
         
-        # Affichage final du tableau récapitulatif
+        # Affichage final du tableau recapitulatif
         st.markdown("---")
-        st.markdown("### 📊 **Récapitulatif Final**")
+        st.markdown("### **Recapitulatif Final**")
         
-        # Créer un DataFrame avec toutes les catégories
+        # Creer un DataFrame avec toutes les categories
         categories = []
         montants = []
         
@@ -751,7 +751,7 @@ with tab6:
             montants.append(float(montant))
         
         df_final = pd.DataFrame({
-            "**Catégorie**": categories,
+            "**Categorie**": categories,
             "**Montant**": [f"{m:,.0f}" for m in montants],
             "Devise": st.session_state.config['devise_base']
         })
@@ -763,7 +763,7 @@ with tab6:
             values=montants, 
             names=categories, 
             hole=0.4,
-            title="Répartition des coûts"
+            title="Repartition des couts"
         )
         fig.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(fig, use_container_width=True)
@@ -771,15 +771,15 @@ with tab6:
         # Export Excel
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            # Feuille résultats détaillés
+            # Feuille resultats detailles
             df_detailed = pd.DataFrame({
-                "Catégorie": categories,
+                "Categorie": categories,
                 "Montant": montants,
                 "Devise": st.session_state.config['devise_base']
             })
             df_detailed.to_excel(writer, sheet_name='Resultats', index=False)
             
-            # Feuille paramètres d'envoi
+            # Feuille parametres d'envoi
             df_shipment = pd.DataFrame([st.session_state.shipment])
             df_shipment.to_excel(writer, sheet_name='Envoi', index=False)
             
@@ -790,56 +790,56 @@ with tab6:
             
             # Feuille configuration route
             df_route = pd.DataFrame({
-                "Paramètre": list(route_data.keys()),
+                "Parametre": list(route_data.keys()),
                 "Valeur": [str(v) for v in route_data.values()]
             })
             df_route.to_excel(writer, sheet_name='Configuration Route', index=False)
         
         st.download_button(
-            "📥 **EXCEL COMPLET**", 
+            "**EXCEL COMPLET**", 
             output.getvalue(), 
             f"Transport_{route_actuelle}_{date.today().strftime('%Y%m%d')}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
     
-    # Si pas de résultats, afficher un message
+    # Si pas de resultats, afficher un message
     else:
-        st.info("ℹ️ **Aucun résultat à afficher. Veuillez effectuer un calcul dans l'onglet '📦 Calcul'.**")
+        st.info("**Aucun resultat a afficher. Veuillez effectuer un calcul dans l'onglet 'Calcul'.**")
         
-        # Bouton pour aller directement à l'onglet Calcul
-        if st.button("📦 **Aller au Calcul**", use_container_width=True):
+        # Bouton pour aller directement a l'onglet Calcul
+        if st.button("**Aller au Calcul**", use_container_width=True):
             st.session_state.active_tab = 0  # Index de l'onglet Calcul
             st.rerun()
 with tab7:
-    st.markdown("### 📋 **LÉGENDE & AIDE**")
+    st.markdown("### **LEGENDE & AIDE**")
     st.markdown("""
-    **🎯 Unités de frais personnalisés :**
+    **Unites de frais personnalises :**
     
-    | **Unité** | **× Quantité** | **Exemple** |
+    | **Unite** | **× Quantite** | **Exemple** |
     |-----------|----------------|-------------|
     | **UP** | Nb UP | 50 MAD × 10 UP = 500 MAD |
     | **palette** | Nb Palettes | 100 MAD × 5 = 500 MAD |
     | **conteneur** | Nb Conteneurs | 5000 MAD × 1 = 5000 MAD |
     | **general** | 1 (fixe) | 2000 MAD fixe |
     
-    **💰 % CIP =** Pourcentage de la **Valeur CIP** saisie
-    **Ex:** 10 000 MAD CIP × 1.5% = 150 MAD ajouté
+    **% CIP =** Pourcentage de la **Valeur CIP** saisie
+    **Ex:** 10 000 MAD CIP × 1.5% = 150 MAD ajoute
     """)
 
-    if st.button("🔄 **RESET COMPLET**"):
+    if st.button("**RESET COMPLET**"):
         st.session_state.config = {}
         st.session_state.shipment = {}
         st.session_state.results = None
         st.rerun()
 
-# 🔥 FEEDBACK TELEGRAM - LONGUEUR IDENTIQUE
+# FEEDBACK TELEGRAM
 st.markdown("---")
 
 st.markdown('<div class="input-section" style="padding: 2rem; margin: 1rem 0;">', unsafe_allow_html=True)
 
 st.markdown("""
 <h3 style="text-align: center; margin-bottom: 2rem; color: #667eea;">
-    💬 **Votre Avis Nous Intéresse**
+    **Votre Avis Nous Interesse**
 </h3>
 """, unsafe_allow_html=True)
 
@@ -848,26 +848,26 @@ CHAT_ID = st.secrets.get("TELEGRAM_CHAT_ID", "")
 
 
 with st.form("feedback_form", clear_on_submit=True):
-    # ✅ BOX 100% LARGEUR - MÊME LONGUEUR
-    name = st.text_input("👤 **Nom / Entreprise**", 
+    # BOX 100% LARGEUR - MEME LONGUEUR
+    name = st.text_input("**Nom / Entreprise**", 
                         placeholder="Votre nom",
                         help="Optionnel",
                         label_visibility="collapsed")
     
-    # ✅ BOX 100% LARGEUR - MÊME LONGUEUR  
-    msg = st.text_area("✍️ **Votre commentaire ou suggestion**", 
+    # BOX 100% LARGEUR - MEME LONGUEUR  
+    msg = st.text_area("**Votre commentaire ou suggestion**", 
                       placeholder="Votre commentaire ou suggestion",
                       height=100,
                       label_visibility="collapsed")
     
-    # ✅ BOUTON 100% LARGEUR
-    submitted = st.form_submit_button("🚀 **ENVOYER L'AVIS**", use_container_width=True)
+    # BOUTON 100% LARGEUR
+    submitted = st.form_submit_button("**ENVOYER L'AVIS**", use_container_width=True)
 
 if submitted and msg.strip():
     try:
         import requests
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-        text = f"🚀 *CALCUL TRANSPORT*\n\n👤 *{name or 'Anonyme'}*\n💬 *{msg}*\n📅 {date.today().strftime('%d/%m/%Y %H:%M')}"
+        text = f"*CALCUL TRANSPORT*\n\n*{name or 'Anonyme'}*\n*{msg}*\n{date.today().strftime('%d/%m/%Y %H:%M')}"
         response = requests.post(url, json={
             "chat_id": CHAT_ID, 
             "text": text, 
@@ -875,15 +875,15 @@ if submitted and msg.strip():
         })
         
         if response.status_code == 200:
-            st.success("✅ **Merci infiniment pour votre retour !** 🎉")
+            st.success("**Merci infiniment pour votre retour !**")
             
         else:
-            st.error("❌ **Erreur envoi Telegram**")
+            st.error("**Erreur envoi Telegram**")
     except:
-        st.error("❌ **Erreur réseau**")
+        st.error("**Erreur reseau**")
 elif submitted:
-    st.warning("⚠️ **Le commentaire ne peut pas être vide**")
+    st.warning("**Le commentaire ne peut pas etre vide**")
 
 st.markdown('</div>', unsafe_allow_html=True)
 st.markdown("---")
-st.caption("Calculateur Transport - Made with ❤️")
+st.caption("Calculateur Transport")
