@@ -237,7 +237,7 @@ def set_background_image(image_path):
 
 # Appliquer le CSS avec l'image de fond
 try:
-    st.markdown(set_background_image("images/img1.jpg"), unsafe_allow_html=True)
+    st.markdown(set_background_image("pages/img1.jpg"), unsafe_allow_html=True)
 except FileNotFoundError:
     # Fallback si l'image n'est pas trouvée
     st.markdown("""
